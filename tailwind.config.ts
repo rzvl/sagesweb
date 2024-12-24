@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss'
 
-export default {
+const config = {
   darkMode: ['class'],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -41,6 +41,10 @@ export default {
       'pink-800': 'hsl(var(--pink-800) / <alpha-value>)',
     },
     extend: {
+      fontFamily: {
+        sans: ['var(--font-geist-sans)'],
+        mono: ['var(--font-geist-mono)'],
+      },
       colors: {
         border: 'hsl(var(--gray-400))',
         input: 'hsl(var(--gray-400))',
@@ -97,3 +101,5 @@ export default {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   plugins: [require('tailwindcss-animate')],
 } satisfies Config
+
+export default config

@@ -1,0 +1,21 @@
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { cn } from '@/lib/utils'
+import { User } from 'lucide-react'
+
+type UserAvatarProps = {
+  className?: string
+  src?: string
+}
+
+function UserAvatar({ className, src }: UserAvatarProps) {
+  return (
+    <Avatar className={cn('h-6 w-6 rounded-full', className)}>
+      <AvatarImage src={src} alt="avatar" />
+      <AvatarFallback>
+        <User className="h-3/4 w-3/4 text-gray-950" />
+      </AvatarFallback>
+    </Avatar>
+  )
+}
+
+export default UserAvatar
