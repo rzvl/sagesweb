@@ -1,12 +1,10 @@
 import { footerLinks } from '@/lib/constants'
 import Link from 'next/link'
 import Logo from '@/components/common/logo'
-// import Image from 'next/image'
 import Twitter from '@/components/icons/twitter'
 import Pinterest from '../icons/pinterest'
 import Facebook from '../icons/facebook'
 import Instagram from '../icons/instagram'
-// import { cn } from '@/lib/utils'
 
 function MainFooter() {
   return (
