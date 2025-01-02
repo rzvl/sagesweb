@@ -1,25 +1,26 @@
 import { footerLinks } from '@/lib/constants'
 import Link from 'next/link'
-import Logo from '@/components/common/logo'
-import Twitter from '@/components/icons/twitter'
-import Pinterest from '../icons/pinterest'
-import Facebook from '../icons/facebook'
-import Instagram from '../icons/instagram'
+import { Logo } from '@/components/elements'
+import {
+  FacebookIcon,
+  InstagramIcon,
+  PinterestIcon,
+  XIcon,
+} from '@/components/icons'
 
 function MainFooter() {
   return (
-    <footer className="mx-8 mb-10 flex flex-1 flex-col flex-wrap justify-start gap-6 sm:flex-row">
-      <div className="order-last mr-8 flex w-full flex-row justify-between gap-6 sm:order-first sm:w-32 sm:flex-col sm:justify-start">
+    <footer className="mx-8 mb-10 flex flex-1 flex-col flex-wrap justify-start gap-6 md:flex-row">
+      <div className="order-last flex w-full flex-row justify-between gap-6 md:order-first md:w-48 md:flex-col md:justify-start">
         <Logo text="&copy; 2025" className="ml-4 text-base font-normal" />
         <SocialLinks
-          width={20}
-          height={20}
+          size={20}
           className="fill-gray-900 transition hover:fill-gray-950"
         />
       </div>
       <div className="mb-10 flex flex-1 flex-wrap justify-between gap-6 sm:mx-1">
         {footerLinks.map((item) => (
-          <div key={item.column} className="flex w-32 flex-col gap-2">
+          <div key={item.column} className="flex w-36 flex-col gap-2">
             <h2 className="text-sm font-semibold uppercase">{item.column}</h2>
             <ul className="flex flex-col gap-1">
               {item.links.map((link) => (
@@ -40,33 +41,32 @@ function MainFooter() {
   )
 }
 
-interface SocialLinksProps {
-  width: number
-  height: number
+type SocialLinksProps = {
+  size: number
   className?: string
 }
 
-function SocialLinks({ width, height, className }: SocialLinksProps) {
+function SocialLinks({ size, className }: SocialLinksProps) {
   return (
     <ul className="flex gap-2">
       <li>
         <Link href="#" target="_blank">
-          <Twitter width={width} height={height} className={className} />
+          <XIcon width={size} height={size} className={className} />
         </Link>
       </li>
       <li>
         <Link href="#" target="_blank">
-          <Pinterest width={width} height={height} className={className} />
+          <PinterestIcon width={size} height={size} className={className} />
         </Link>
       </li>
       <li>
         <Link href="#" target="_blank">
-          <Facebook width={width} height={height} className={className} />
+          <FacebookIcon width={size} height={size} className={className} />
         </Link>
       </li>
       <li>
         <Link href="#" target="_blank">
-          <Instagram width={width} height={height} className={className} />
+          <InstagramIcon width={size} height={size} className={className} />
         </Link>
       </li>
     </ul>

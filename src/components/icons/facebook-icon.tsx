@@ -1,4 +1,4 @@
-function Facebook(props: React.SVGProps<SVGSVGElement>) {
+function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} viewBox="0 0 25 24" xmlns="http://www.w3.org/2000/svg">
       <g clipPath="url(#clip0_814_3856)">
@@ -13,4 +13,4 @@ function Facebook(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-export default Facebook
+export default FacebookIcon

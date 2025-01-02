@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import Logo from '@/components/common/logo'
+import { Logo } from '@/components/elements'
 import NavMenu from './nav-menu'
 import AuthButtons from './auth-buttons'
 import ModeToggle from '../mode-toggle'

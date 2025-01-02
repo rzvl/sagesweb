@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 // import { useToast } from '@/components/ui/use-toast'
 import { LogOut, User as UserIcon } from 'lucide-react'
-import UserAvatar from '@/components/common/user-avatar'
+import { UserAvatar } from '@/components/elements'
 // import { useToast } from '@/hooks/use-toast'
 
 type AvatarDropdownProps = {
@@ -28,9 +28,9 @@ export function AvatarDropdown({ user }: AvatarDropdownProps) {
   // const router = useRouter()
   // const { toast } = useToast()
 
-  function handleSignOut() {
+  async function handleSignOut() {
     setIsLoggingOut(true)
-    signOut()
+    await signOut()
     setIsLoggingOut(false)
   }
 

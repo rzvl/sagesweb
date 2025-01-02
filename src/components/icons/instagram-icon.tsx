@@ -1,4 +1,4 @@
-function Instagram(props: React.SVGProps<SVGSVGElement>) {
+function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} viewBox="0 0 25 24" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -10,4 +10,4 @@ function Instagram(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
-export default Instagram
+export default InstagramIcon
