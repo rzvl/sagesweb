@@ -21,7 +21,10 @@ type AuthFormProps = {
   btnText: string
 }
 
-function AuthForm({ showForgotPassword, btnText }: AuthFormProps) {
+export default function AuthForm({
+  showForgotPassword,
+  btnText,
+}: AuthFormProps) {
   const form = useForm<TAuthForm>({
     resolver: zodResolver(authFormSchema),
     defaultValues: {
@@ -44,7 +47,7 @@ function AuthForm({ showForgotPassword, btnText }: AuthFormProps) {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="m@example.com" {...field} />
+                <Input placeholder="name@example.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -80,5 +83,3 @@ function AuthForm({ showForgotPassword, btnText }: AuthFormProps) {
     </Form>
   )
 }
-
-export default AuthForm

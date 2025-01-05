@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { auth } from '@/server/auth'
 import AvatarDropdown from './avatar-dropdown'
 
-async function AuthButtons() {
+export default async function AuthButtons() {
   const session = await auth()
   const user = session?.user
 
@@ -22,5 +22,3 @@ async function AuthButtons() {
     </div>
   )
 }
-
-export default AuthButtons

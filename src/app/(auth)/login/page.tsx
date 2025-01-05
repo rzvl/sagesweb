@@ -11,7 +11,7 @@ import {
 } from '@/components/features/auth'
 import { AppleIcon, GoogleIcon } from '@/components/icons'
 
-function LoginPage() {
+export default function LoginPage() {
   return (
     <AuthPageContainer>
       <AuthCard>
@@ -42,5 +42,3 @@ function LoginPage() {
     </AuthPageContainer>
   )
 }
-
-export default LoginPage

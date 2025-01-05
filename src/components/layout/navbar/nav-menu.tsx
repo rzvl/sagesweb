@@ -9,11 +9,11 @@ import {
 import { cn } from '@/lib/utils'
 import { navMenuItems } from '@/lib/constants'
 
-function NavMenu() {
+export default function NavMenu() {
   return (
     <NavigationMenu className="hidden md:block">
       <NavigationMenuList>
-        {navMenuItems.map(item => (
+        {navMenuItems.map((item) => (
           <NavigationMenuItem key={item.name}>
             <Link href={item.href} legacyBehavior passHref>
               <NavigationMenuLink
@@ -28,5 +28,3 @@ function NavMenu() {
     </NavigationMenu>
   )
 }
-
-export default NavMenu

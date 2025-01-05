@@ -12,7 +12,7 @@ import { mobileMenuItems } from '@/lib/constants'
 import { Menu } from 'lucide-react'
 import Link from 'next/link'
 
-function MobileMenu() {
+export default function MobileMenu() {
   return (
     <div className="md:hidden">
       <Sheet>
@@ -34,7 +34,7 @@ function MobileMenu() {
             <li className="sm:hidden">Search</li>
             <li className="sm:hidden">Change Theme</li>
             <Separator className="sm:hidden" />
-            {mobileMenuItems.map(item => (
+            {mobileMenuItems.map((item) => (
               <li key={item.name}>
                 <SheetClose asChild>
                   <Link href={item.href}>{item.name}</Link>
@@ -47,5 +47,3 @@ function MobileMenu() {
     </div>
   )
 }
-
-export default MobileMenu

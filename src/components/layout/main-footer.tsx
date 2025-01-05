@@ -8,9 +8,9 @@ import {
   XIcon,
 } from '@/components/icons'
 
-function MainFooter() {
+export default function MainFooter() {
   return (
-    <footer className="mx-8 mb-10 flex flex-1 flex-col flex-wrap justify-start gap-6 md:flex-row">
+    <footer className="mx-8 mb-2 flex flex-1 flex-col flex-wrap justify-start gap-6 md:flex-row">
       <div className="order-last flex w-full flex-row justify-between gap-6 md:order-first md:w-48 md:flex-col md:justify-start">
         <Logo text="&copy; 2025" className="ml-4 text-base font-normal" />
         <SocialLinks
@@ -72,5 +72,3 @@ function SocialLinks({ size, className }: SocialLinksProps) {
     </ul>
   )
 }
-
-export default MainFooter

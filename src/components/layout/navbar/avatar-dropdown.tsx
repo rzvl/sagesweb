@@ -22,13 +22,13 @@ type AvatarDropdownProps = {
   user: User | undefined
 }
 
-export function AvatarDropdown({ user }: AvatarDropdownProps) {
+export default function AvatarDropdown({ user }: AvatarDropdownProps) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   // const router = useRouter()
   // const { toast } = useToast()
 
-  async function handleSignOut() {
+  const handleSignOut = async () => {
     setIsLoggingOut(true)
     await signOut()
     setIsLoggingOut(false)
@@ -59,5 +59,3 @@ export function AvatarDropdown({ user }: AvatarDropdownProps) {
     </>
   )
 }
-
-export default AvatarDropdown

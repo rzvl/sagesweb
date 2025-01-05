@@ -11,7 +11,7 @@ import {
 } from '@/components/features/auth'
 import { AppleIcon, GoogleIcon } from '@/components/icons'
 
-function SignupPage() {
+export default function SignupPage() {
   return (
     <AuthPageContainer>
       <AuthCard>
@@ -31,7 +31,7 @@ function SignupPage() {
             </OAuthButton>
           </OAuthButtonGroup>
           <SeparatorWithText text="Or continue with" />
-          <AuthForm btnText="Sign Up" />
+          <AuthForm btnText="Create account" />
         </AuthCardContent>
         <AuthCardFooter
           text="Already have an account?"
@@ -42,5 +42,3 @@ function SignupPage() {
     </AuthPageContainer>
   )
 }
-
-export default SignupPage

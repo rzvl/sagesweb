@@ -1,7 +1,9 @@
 import { MainFooter, Navbar } from '@/components/layout'
 import React from 'react'
 
-function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <>
       <header>
@@ -12,5 +14,3 @@ function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     </>
   )
 }
-
-export default RootLayout

@@ -4,7 +4,7 @@ import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 
-function ModeToggle() {
+export default function ModeToggle() {
   const { setTheme, theme } = useTheme()
 
   const handleClick = () => {
@@ -19,5 +19,3 @@ function ModeToggle() {
     </Button>
   )
 }
-
-export default ModeToggle
