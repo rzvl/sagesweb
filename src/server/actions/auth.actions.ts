@@ -106,6 +106,7 @@ async function sendVerificationEmail(email: string) {
     })
 
     if (error) {
+      console.log(error)
       return { error: 'Failed to send verification email', data: error }
     }
 

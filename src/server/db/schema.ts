@@ -61,13 +61,11 @@ export const verificationTokens = pgTable(
       .default(new Date()),
     email: text('email').notNull(),
   },
-  (verificationToken) => [
-    {
-      compositePk: primaryKey({
-        columns: [verificationToken.id, verificationToken.token],
-      }),
-    },
-  ],
+  (verificationToken) => ({
+    pk: primaryKey({
+      columns: [verificationToken.id, verificationToken.token],
+    }),
+  }),
 )
 
 export type SelectUser = typeof users.$inferSelect
