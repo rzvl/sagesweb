@@ -8,15 +8,17 @@ import {
   pgEnum,
 } from 'drizzle-orm/pg-core'
 import { AdapterAccountType } from 'next-auth/adapters'
+import { createId } from '@paralleldrive/cuid2'
 
 export const RoleEnum = pgEnum('roles', ['user', 'admin'])
 
 export const users = pgTable('user', {
   id: text('id')
     .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+    .$defaultFn(() => createId()),
   name: text('name'),
   email: text('email').unique(),
+  password: text('password'),
   emailVerified: timestamp('emailVerified', { mode: 'date' }),
   image: text('image'),
   twoFactorEnabled: boolean('twoFactorEnabled').default(false),
@@ -47,7 +49,30 @@ export const accounts = pgTable(
   }),
 )
 
+export const verificationTokens = pgTable(
+  'verificationToken',
+  {
+    id: text('id')
+      .notNull()
+      .$defaultFn(() => createId()),
+    token: text('token').notNull(),
+    sentAt: timestamp('sent_at', { withTimezone: true, mode: 'date' })
+      .notNull()
+      .default(new Date()),
+    email: text('email').notNull(),
+  },
+  (verificationToken) => [
+    {
+      compositePk: primaryKey({
+        columns: [verificationToken.id, verificationToken.token],
+      }),
+    },
+  ],
+)
+
 export type SelectUser = typeof users.$inferSelect
 export type InsertUser = typeof users.$inferInsert
 export type SelectAccount = typeof accounts.$inferSelect
 export type InsertAccount = typeof accounts.$inferInsert
+export type SelectVerificationToken = typeof verificationTokens.$inferSelect
+export type InsertVerificationToken = typeof verificationTokens.$inferInsert

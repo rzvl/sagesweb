@@ -31,7 +31,7 @@ export default function SignupPage() {
             </OAuthButton>
           </OAuthButtonGroup>
           <SeparatorWithText text="Or continue with" />
-          <AuthForm btnText="Create account" />
+          <AuthForm type="signup" />
         </AuthCardContent>
         <AuthCardFooter
           text="Already have an account?"

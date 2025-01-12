@@ -1,0 +1,2 @@
+ALTER TABLE "verificationToken" ADD COLUMN "sent_at" timestamp with time zone DEFAULT '2025-01-12T11:34:00.577Z' NOT NULL;--> statement-breakpoint
+ALTER TABLE "verificationToken" DROP COLUMN "expires";

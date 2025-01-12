@@ -31,7 +31,7 @@ export default function LoginPage() {
             </OAuthButton>
           </OAuthButtonGroup>
           <SeparatorWithText text="Or continue with" />
-          <AuthForm showForgotPassword btnText="Login" />
+          <AuthForm type="login" />
         </AuthCardContent>
         <AuthCardFooter
           text="Don't have an account?"

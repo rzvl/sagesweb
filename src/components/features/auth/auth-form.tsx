@@ -1,12 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
+import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { TAuthForm } from '@/lib/types'
-import { authFormSchema } from '@/lib/validations'
 import {
   Form,
   FormControl,
@@ -15,26 +15,41 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { loginSchema, signupSchema } from '@/lib/validations'
+import { login, signup } from '@/server/actions/auth.actions'
+import AuthMessage from './auth-message'
+import { ActionResponse } from '@/lib/types'
 
 type AuthFormProps = {
-  showForgotPassword?: boolean
-  btnText: string
+  type: 'login' | 'signup'
 }
 
-export default function AuthForm({
-  showForgotPassword,
-  btnText,
-}: AuthFormProps) {
-  const form = useForm<TAuthForm>({
-    resolver: zodResolver(authFormSchema),
+export default function AuthForm({ type }: AuthFormProps) {
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  const schema = type === 'login' ? loginSchema : signupSchema
+  const action = type === 'login' ? login : signup
+
+  // const [isLoading, startTransition] = useTransition()
+
+  const form = useForm<z.infer<typeof schema>>({
+    resolver: zodResolver(schema),
     defaultValues: {
       email: '',
       password: '',
     },
   })
 
-  const onSubmit = (values: TAuthForm) => {
-    console.log(values)
+  const onSubmit = async (values: z.infer<typeof schema>) => {
+    setError('')
+    setSuccess('')
+    setIsLoading(true)
+    const response: ActionResponse = await action(values)
+    setIsLoading(false)
+    if (response.error) setError(response.error)
+    if (response.success) setSuccess(response.success)
   }
 
   return (
@@ -47,7 +62,11 @@ export default function AuthForm({
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input placeholder="name@example.com" {...field} />
+                <Input
+                  disabled={isLoading}
+                  placeholder="name@example.com"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -60,7 +79,7 @@ export default function AuthForm({
             <FormItem>
               <div className="flex items-center">
                 <FormLabel>Password</FormLabel>
-                {showForgotPassword && (
+                {type === 'login' && (
                   <Link
                     href="#"
                     className="ml-auto text-sm underline-offset-4 hover:underline"
@@ -70,14 +89,21 @@ export default function AuthForm({
                 )}
               </div>
               <FormControl>
-                <Input type="password" placeholder="********" {...field} />
+                <Input
+                  disabled={isLoading}
+                  type="password"
+                  placeholder="********"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full">
-          {btnText}
+        {error && <AuthMessage variant="destructive" message={error} />}
+        {success && <AuthMessage variant="success" message={success} />}
+        <Button type="submit" disabled={isLoading} className="w-full">
+          {type === 'login' ? 'Login' : 'Create account'}
         </Button>
       </form>
     </Form>

@@ -1,6 +1,12 @@
 import { z } from 'zod'
-import { authFormSchema } from './validations'
+import { loginSchema } from '@/lib/validations'
 
-type TAuthForm = z.infer<typeof authFormSchema>
+type ActionResponse = {
+  success?: string
+  error?: string
+  data?: unknown
+}
 
-export type { TAuthForm }
+type AuthFormData = z.infer<typeof loginSchema>
+
+export type { ActionResponse, AuthFormData }
