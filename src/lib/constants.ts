@@ -1,6 +1,7 @@
-const BASE_URL = process.env.VERCEL_URL
-  ? `https://${process.env.DOMAIN_URL}`
-  : `http://localhost:3000`
+const BASE_URL =
+  process.env.NODE_ENV === 'production'
+    ? 'https://sagesweb.com'
+    : 'http://localhost:3000'
 
 const navMenuItems = [
   {
