@@ -2,23 +2,32 @@
 
 import bcrypt from 'bcrypt'
 import { Resend } from 'resend'
+import { z } from 'zod'
 import { loginSchema, signupSchema } from '@/lib/validations'
-import { addUser, getUserByEmail } from '@/data/user'
+import {
+  addUser,
+  getUserByEmail,
+  updateUserVerification,
+} from '@/server/data/user'
 import {
   deleteVerificationToken,
   generateVerificationToken,
   getVerificationTokenByEmail,
-} from '@/data/token'
-import { ActionResponse, AuthFormData } from '@/lib/types'
-import VerificationEmail from '@/components/email-templates/vrf-eamil'
-import { baseUrl } from '@/lib/utils'
+  getVerificationTokenByToken,
+} from '@/server/data/token'
+import { TResponse } from '@/lib/types'
+import VerificationEmail from '@/components/email-templates/verification-eamil'
+import { BASE_URL } from '@/lib/constants'
 
-async function signup(values: AuthFormData): Promise<ActionResponse> {
+async function signup(
+  values: z.infer<typeof signupSchema>,
+): Promise<TResponse<string>> {
   const validatedFields = signupSchema.safeParse(values)
 
   if (!validatedFields.success) {
     return {
-      error: 'Invalid credentials!',
+      success: false,
+      data: 'Invalid credentials!',
     }
   }
 
@@ -31,7 +40,8 @@ async function signup(values: AuthFormData): Promise<ActionResponse> {
         return await sendVerificationEmail(email)
       }
       return {
-        error: 'Email already exists',
+        success: false,
+        data: 'Email already exists',
       }
     }
 
@@ -45,21 +55,25 @@ async function signup(values: AuthFormData): Promise<ActionResponse> {
     return await sendVerificationEmail(email)
   } catch (error) {
     return {
-      error: (error as Error).message,
+      success: false,
+      data: (error as Error).message,
     }
   }
 }
 
-async function login(values: AuthFormData) {
+async function login(
+  values: z.infer<typeof loginSchema>,
+): Promise<TResponse<string>> {
   const validatedFields = loginSchema.safeParse(values)
 
   if (!validatedFields.success) {
     return {
-      error: 'Invalid credentials!',
+      success: false,
+      data: 'Invalid credentials!',
     }
   }
 
-  return { success: 'Login successful!' }
+  return { success: true, data: 'Login successful!' }
 
   // const { email, password } = validatedFields.data
 
@@ -77,17 +91,19 @@ async function login(values: AuthFormData) {
   // }
 }
 
-async function sendVerificationEmail(email: string) {
+async function sendVerificationEmail(
+  email: string,
+): Promise<TResponse<string>> {
   try {
     const existingToken = await getVerificationTokenByEmail(email)
     if (existingToken) {
-      const isOneMinutePast =
-        new Date().getTime() - existingToken.sentAt.getTime() > 60000
+      const isFiveMinutesPast =
+        Date.now() > 5 * 60000 + existingToken.sentAt.getTime()
 
-      if (!isOneMinutePast) {
+      if (!isFiveMinutesPast) {
         return {
-          error:
-            'Email verification token has already been sent. Please try again in a minute.',
+          success: false,
+          data: 'You can only request a verification email every 5 minutes. Please try again later.',
         }
       }
       await deleteVerificationToken(existingToken.token)
@@ -96,9 +112,9 @@ async function sendVerificationEmail(email: string) {
     const { token } = await generateVerificationToken(email)
 
     const resend = new Resend(process.env.RESEND_API_KEY)
-    const url = `${baseUrl}/api/auth/verify?token=${token}`
+    const url = `${BASE_URL}/verify-email?token=${token}`
 
-    const { data, error } = await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: 'SagesWeb <hello@notifications.sagesweb.com>',
       to: email,
       subject: 'Confirm your SagesWeb account',
@@ -106,14 +122,104 @@ async function sendVerificationEmail(email: string) {
     })
 
     if (error) {
-      console.log(error)
-      return { error: 'Failed to send verification email', data: error }
+      return {
+        success: false,
+        data: 'Failed to send verification email',
+      }
     }
-
-    return { success: 'Verification email sent!', data }
+    return { success: true, data: 'Verification email sent!' }
   } catch (error) {
-    return { error: (error as Error).message }
+    return { success: false, data: (error as Error).message }
   }
 }
 
-export { sendVerificationEmail, signup, login }
+async function resendVerificationEmail(
+  email: string,
+): Promise<TResponse<string>> {
+  const existingUser = await getUserByEmail(email)
+  if (!existingUser) {
+    return {
+      success: false,
+      data: 'User not found',
+    }
+  }
+
+  if (existingUser.emailVerified) {
+    return {
+      success: false,
+      data: 'Email already verified',
+    }
+  }
+
+  return sendVerificationEmail(email)
+}
+
+async function verifyEmail(token: string | null): Promise<TResponse<string>> {
+  if (!token) {
+    return {
+      success: false,
+      data: 'Token not found. Please use the link in your email to verify your email.',
+    }
+  }
+
+  try {
+    const existingToken = await getVerificationTokenByToken(token)
+
+    if (!existingToken) {
+      return {
+        success: false,
+        data: 'Invalid token. Please use the link in your email to verify your email.',
+      }
+    }
+
+    const isTokenExpired =
+      existingToken.sentAt.getTime() < Date.now() - 1000 * 3600 * 24
+
+    if (isTokenExpired) {
+      await deleteVerificationToken(existingToken.token)
+      return {
+        success: false,
+        data: 'Token has expired. Please use the button below to get a new verification email.',
+      }
+    }
+
+    const user = await getUserByEmail(existingToken.email)
+
+    if (!user) {
+      await deleteVerificationToken(existingToken.token)
+      return {
+        success: false,
+        data: 'User not found. You need to create an account first.',
+      }
+    }
+
+    if (user.emailVerified) {
+      await deleteVerificationToken(existingToken.token)
+      return {
+        success: true,
+        data: 'Your email is already verified!',
+      }
+    }
+
+    await deleteVerificationToken(existingToken.token)
+    await updateUserVerification(user.id)
+
+    return {
+      success: true,
+      data: 'Email verified successfully!',
+    }
+  } catch (error) {
+    return {
+      success: false,
+      data: (error as Error).message,
+    }
+  }
+}
+
+export {
+  resendVerificationEmail,
+  sendVerificationEmail,
+  signup,
+  login,
+  verifyEmail,
+}

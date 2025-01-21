@@ -1,0 +1,1 @@
+ALTER TABLE "verificationToken" ALTER COLUMN "sent_at" DROP DEFAULT;

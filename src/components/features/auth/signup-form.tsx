@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -15,46 +15,42 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { loginSchema, signupSchema } from '@/lib/validations'
-import { login, signup } from '@/server/actions/auth.actions'
-import AuthMessage from './auth-message'
-import { ActionResponse } from '@/lib/types'
+import { signupSchema } from '@/lib/validations'
+import { signup } from '@/server/actions/auth.actions'
+import { AlertBox, Loader } from '@/components/elements'
+import PasswordInput from './password-input'
 
-type AuthFormProps = {
-  type: 'login' | 'signup'
-}
-
-export default function AuthForm({ type }: AuthFormProps) {
+export default function SignUpForm() {
+  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const schema = type === 'login' ? loginSchema : signupSchema
-  const action = type === 'login' ? login : signup
-
-  // const [isLoading, startTransition] = useTransition()
-
-  const form = useForm<z.infer<typeof schema>>({
-    resolver: zodResolver(schema),
+  const form = useForm<z.infer<typeof signupSchema>>({
+    resolver: zodResolver(signupSchema),
     defaultValues: {
       email: '',
       password: '',
     },
   })
 
-  const onSubmit = async (values: z.infer<typeof schema>) => {
+  const onSubmit = async (values: z.infer<typeof signupSchema>) => {
     setError('')
     setSuccess('')
     setIsLoading(true)
-    const response: ActionResponse = await action(values)
+    const response = await signup(values)
+    form.reset()
     setIsLoading(false)
-    if (response.error) setError(response.error)
-    if (response.success) setSuccess(response.success)
+    if (!response.success) setError(response.data)
+    else {
+      setSuccess(response.data)
+      router.push(`/signup/success?email=${values.email}`)
+    }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4">
         <FormField
           control={form.control}
           name="email"
@@ -77,21 +73,10 @@ export default function AuthForm({ type }: AuthFormProps) {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center">
-                <FormLabel>Password</FormLabel>
-                {type === 'login' && (
-                  <Link
-                    href="#"
-                    className="ml-auto text-sm underline-offset-4 hover:underline"
-                  >
-                    Forgot your password?
-                  </Link>
-                )}
-              </div>
+              <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input
+                <PasswordInput
                   disabled={isLoading}
-                  type="password"
                   placeholder="********"
                   {...field}
                 />
@@ -100,10 +85,10 @@ export default function AuthForm({ type }: AuthFormProps) {
             </FormItem>
           )}
         />
-        {error && <AuthMessage variant="destructive" message={error} />}
-        {success && <AuthMessage variant="success" message={success} />}
+        {error && <AlertBox variant="destructive" message={error} />}
+        {success && <AlertBox variant="success" message={success} />}
         <Button type="submit" disabled={isLoading} className="w-full">
-          {type === 'login' ? 'Login' : 'Create account'}
+          {isLoading ? <Loader /> : 'Create Account'}
         </Button>
       </form>
     </Form>

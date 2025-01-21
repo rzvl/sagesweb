@@ -1,20 +1,5 @@
-import {
-  AuthCard,
-  AuthCardContent,
-  AuthCardFooter,
-  AuthCardHeader,
-} from './auth-card'
-import AuthForm from './auth-form'
+import AuthCard from './auth-card'
 import AuthPageContainer from './auth-page-container'
-import { OAuthButton, OAuthButtonGroup } from './oauth-button'
+import ResendEmailVerificationButton from './resend-email-vrf-btn'
 
-export {
-  AuthCard,
-  AuthCardContent,
-  AuthCardHeader,
-  AuthCardFooter,
-  AuthForm,
-  AuthPageContainer,
-  OAuthButton,
-  OAuthButtonGroup,
-}
+export { AuthCard, AuthPageContainer, ResendEmailVerificationButton }

@@ -1,3 +1,7 @@
+const BASE_URL = process.env.VERCEL_URL
+  ? `https://${process.env.DOMAIN_URL}`
+  : `http://localhost:3000`
+
 const navMenuItems = [
   {
     name: 'Spiritual Teachers',
@@ -49,4 +53,4 @@ const footerLinks = [
   },
 ]
 
-export { footerLinks, navMenuItems, mobileMenuItems }
+export { BASE_URL, footerLinks, navMenuItems, mobileMenuItems }

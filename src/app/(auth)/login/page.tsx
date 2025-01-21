@@ -1,44 +1,9 @@
-import { SeparatorWithText } from '@/components/elements'
-import {
-  AuthCard,
-  AuthCardContent,
-  AuthCardFooter,
-  AuthCardHeader,
-  AuthForm,
-  AuthPageContainer,
-  OAuthButton,
-  OAuthButtonGroup,
-} from '@/components/features/auth'
-import { AppleIcon, GoogleIcon } from '@/components/icons'
+import { AuthCard, AuthPageContainer } from '@/components/features/auth'
 
-export default function LoginPage() {
+export default function Page() {
   return (
-    <AuthPageContainer>
-      <AuthCard>
-        <AuthCardHeader
-          title="Welcome back"
-          description="Login with your Apple or Google account"
-        />
-        <AuthCardContent>
-          <OAuthButtonGroup>
-            <OAuthButton>
-              <AppleIcon />
-              Login with Apple
-            </OAuthButton>
-            <OAuthButton>
-              <GoogleIcon />
-              Login with Google
-            </OAuthButton>
-          </OAuthButtonGroup>
-          <SeparatorWithText text="Or continue with" />
-          <AuthForm type="login" />
-        </AuthCardContent>
-        <AuthCardFooter
-          text="Don't have an account?"
-          href="/signup"
-          linkText="Sign up"
-        />
-      </AuthCard>
+    <AuthPageContainer showHeader showFooter>
+      <AuthCard type="login" />
     </AuthPageContainer>
   )
 }

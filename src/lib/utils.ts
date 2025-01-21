@@ -5,11 +5,9 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-const baseUrl = getBaseUrl()
-function getBaseUrl() {
-  if (typeof window !== 'undefined') return ''
-  if (process.env.VERCEL_URL) return `https://${process.env.DOMAIN_URL}`
-  return `http://localhost:3000`
+// create a function which creates a new date, adds 5 minutes and returns it
+function addMinutes(date: Date, minutes: number) {
+  return new Date(date.getTime() + minutes * 60000)
 }
 
-export { baseUrl, cn }
+export { cn, addMinutes }

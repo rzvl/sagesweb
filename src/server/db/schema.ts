@@ -56,9 +56,10 @@ export const verificationTokens = pgTable(
       .notNull()
       .$defaultFn(() => createId()),
     token: text('token').notNull(),
-    sentAt: timestamp('sent_at', { withTimezone: true, mode: 'date' })
-      .notNull()
-      .default(new Date()),
+    sentAt: timestamp('sent_at', {
+      withTimezone: true,
+      mode: 'date',
+    }).notNull(),
     email: text('email').notNull(),
   },
   (verificationToken) => ({
