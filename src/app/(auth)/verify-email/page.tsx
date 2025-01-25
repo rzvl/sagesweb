@@ -25,8 +25,12 @@ export default function Page() {
     async function verifyUserEamil(token: string | null) {
       const result = await verifyEmail(token)
 
-      if (result.success) setSuccess(result.data)
-      else setError(result.data)
+      if (result.success) {
+        setSuccess(result.success)
+      }
+      if (result.error) {
+        setError(result.error)
+      }
       setIsLoading(false)
     }
     verifyUserEamil(token)

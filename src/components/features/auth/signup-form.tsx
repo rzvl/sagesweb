@@ -41,9 +41,13 @@ export default function SignUpForm() {
     const response = await signup(values)
     form.reset()
     setIsLoading(false)
-    if (!response.success) setError(response.data)
-    else {
-      setSuccess(response.data)
+
+    if (response.error) {
+      setError(response.error)
+    }
+
+    if (response.success) {
+      setSuccess(response.success)
       router.push(`/signup/success?email=${values.email}`)
     }
   }

@@ -1,6 +1,6 @@
-type TResponse<T> = {
-  success: boolean
-  data: T
+type TResponse = {
+  success?: string
+  error?: string
 }
 
 export type { TResponse }

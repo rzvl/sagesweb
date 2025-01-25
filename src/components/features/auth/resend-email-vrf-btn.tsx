@@ -38,10 +38,12 @@ export default function ResendEmailVerificationButton({
 
     const res = await resendVerificationEmail(email)
     if (res.success) {
-      setSuccess(res.data)
+      setSuccess(res.success)
       restart(addMinutes(new Date(), 5))
-    } else {
-      setError(res.data)
+    }
+
+    if (res.error) {
+      setError(res.error)
     }
 
     setIsLoading(false)

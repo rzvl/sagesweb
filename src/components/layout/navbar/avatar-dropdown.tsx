@@ -1,10 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-// import { useRouter } from 'next/navigation'
-// import { AvatarComponent, FullPageLoader } from '@/components'
+import { useTransition } from 'react'
 import type { User } from 'next-auth'
 import { signOut } from 'next-auth/react'
+import { LogOut, User as UserIcon } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,25 +12,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-// import { useToast } from '@/components/ui/use-toast'
-import { LogOut, User as UserIcon } from 'lucide-react'
-import { UserAvatar } from '@/components/elements'
-// import { useToast } from '@/hooks/use-toast'
+import { FullPageLoader, UserAvatar } from '@/components/elements'
 
 type AvatarDropdownProps = {
   user: User | undefined
 }
 
 export default function AvatarDropdown({ user }: AvatarDropdownProps) {
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [isLoggingOut, startTransition] = useTransition()
 
-  // const router = useRouter()
-  // const { toast } = useToast()
-
-  const handleSignOut = async () => {
-    setIsLoggingOut(true)
-    await signOut()
-    setIsLoggingOut(false)
+  const handleSignOut = () => {
+    startTransition(async () => {
+      await signOut()
+    })
   }
 
   return (
@@ -55,7 +48,7 @@ export default function AvatarDropdown({ user }: AvatarDropdownProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* {isLoggingOut && <FullPageLoader text="Logging out..." />} */}
+      {isLoggingOut && <FullPageLoader text="Logging out..." />}
     </>
   )
 }

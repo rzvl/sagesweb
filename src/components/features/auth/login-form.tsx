@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -19,12 +20,13 @@ import { loginSchema } from '@/lib/validations'
 import { login } from '@/server/actions/auth.actions'
 import type { TResponse } from '@/lib/types'
 import { AlertBox, Loader } from '@/components/elements'
-import PasswordInput from './password-input'
+import PasswordInput from '@/components/features/auth/password-input'
 
 export default function LogInForm() {
-  const [isLoading, setIsLoading] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState('')
+
+  const router = useRouter()
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -36,12 +38,21 @@ export default function LogInForm() {
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     setError('')
-    setSuccess('')
-    setIsLoading(true)
-    const response: TResponse<string> = await login(values)
-    setIsLoading(false)
-    if (!response.success) setError(response.data)
-    if (response.success) setSuccess(response.data)
+    setIsSubmitting(true)
+    const response: TResponse = await login(values)
+    form.reset()
+    setIsSubmitting(false)
+
+    if (response.success) {
+      router.push('/')
+    }
+
+    if (response.error) {
+      if (response.error === 'Email not verified') {
+        router.push(`/login/resend-verification-email?email=${values.email}`)
+      }
+      setError(response.error)
+    }
   }
 
   return (
@@ -55,7 +66,7 @@ export default function LogInForm() {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                   placeholder="name@example.com"
                   {...field}
                 />
@@ -80,7 +91,7 @@ export default function LogInForm() {
               </div>
               <FormControl>
                 <PasswordInput
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                   placeholder="********"
                   {...field}
                 />
@@ -90,9 +101,8 @@ export default function LogInForm() {
           )}
         />
         {error && <AlertBox variant="destructive" message={error} />}
-        {success && <AlertBox variant="success" message={success} />}
-        <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? <Loader /> : 'Log In'}
+        <Button type="submit" disabled={isSubmitting} className="w-full">
+          {isSubmitting ? <Loader /> : 'Log In'}
         </Button>
       </form>
     </Form>

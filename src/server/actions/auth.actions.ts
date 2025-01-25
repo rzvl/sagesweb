@@ -1,9 +1,11 @@
 'use server'
 
-import bcrypt from 'bcrypt'
+import { AuthError } from 'next-auth'
+import bcrypt from 'bcryptjs'
 import { Resend } from 'resend'
 import { z } from 'zod'
 import { loginSchema, signupSchema } from '@/lib/validations'
+import { signIn } from '@/server/auth'
 import {
   addUser,
   getUserByEmail,
@@ -21,28 +23,23 @@ import { BASE_URL } from '@/lib/constants'
 
 async function signup(
   values: z.infer<typeof signupSchema>,
-): Promise<TResponse<string>> {
-  const validatedFields = signupSchema.safeParse(values)
-
-  if (!validatedFields.success) {
-    return {
-      success: false,
-      data: 'Invalid credentials!',
-    }
-  }
-
-  const { email, password } = validatedFields.data
-
+): Promise<TResponse> {
   try {
+    const validatedFields = signupSchema.safeParse(values)
+
+    if (!validatedFields.success) {
+      throw new Error('Invalid credentials')
+    }
+
+    const { email, password } = validatedFields.data
+
     const existingUser = await getUserByEmail(email)
+
     if (existingUser) {
       if (!existingUser.emailVerified) {
         return await sendVerificationEmail(email)
       }
-      return {
-        success: false,
-        data: 'Email already exists',
-      }
+      throw new Error('Email already exists')
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -54,46 +51,28 @@ async function signup(
 
     return await sendVerificationEmail(email)
   } catch (error) {
-    return {
-      success: false,
-      data: (error as Error).message,
+    if (error instanceof Error) {
+      return { error: (error as Error).message }
+    } else {
+      return { error: 'Something went wrong' }
     }
   }
 }
 
-async function login(
-  values: z.infer<typeof loginSchema>,
-): Promise<TResponse<string>> {
-  const validatedFields = loginSchema.safeParse(values)
+async function login(values: z.infer<typeof loginSchema>): Promise<TResponse> {
+  try {
+    await signIn('credentials', { ...values, redirect: false })
 
-  if (!validatedFields.success) {
-    return {
-      success: false,
-      data: 'Invalid credentials!',
+    return { success: 'Login successful' }
+  } catch (error) {
+    if (error instanceof AuthError) {
+      return { error: error.cause?.err?.message || 'Something went wrong' }
     }
+    return { error: 'An unexpected error occurred' }
   }
-
-  return { success: true, data: 'Login successful!' }
-
-  // const { email, password } = validatedFields.data
-
-  // const existingUser = await db
-  //   .select()
-  //   .from(users)
-  //   .where(eq(users.email, email))
-
-  // if (existingUser) {
-  //   return {
-  //     errors: {
-  //       email: 'Email already exists',
-  //     },
-  //   }
-  // }
 }
 
-async function sendVerificationEmail(
-  email: string,
-): Promise<TResponse<string>> {
+async function sendVerificationEmail(email: string): Promise<TResponse> {
   try {
     const existingToken = await getVerificationTokenByEmail(email)
     if (existingToken) {
@@ -101,10 +80,9 @@ async function sendVerificationEmail(
         Date.now() > 5 * 60000 + existingToken.sentAt.getTime()
 
       if (!isFiveMinutesPast) {
-        return {
-          success: false,
-          data: 'You can only request a verification email every 5 minutes. Please try again later.',
-        }
+        throw new Error(
+          'You can only request a verification email every 5 minutes.',
+        )
       }
       await deleteVerificationToken(existingToken.token)
     }
@@ -114,62 +92,50 @@ async function sendVerificationEmail(
     const resend = new Resend(process.env.RESEND_API_KEY)
     const url = `${BASE_URL}/verify-email?token=${token}`
 
-    const { error } = await resend.emails.send({
+    await resend.emails.send({
       from: 'SagesWeb <hello@notifications.sagesweb.com>',
       to: email,
       subject: 'Confirm your SagesWeb account',
       react: VerificationEmail({ url }),
     })
 
-    if (error) {
-      return {
-        success: false,
-        data: 'Failed to send verification email',
-      }
-    }
-    return { success: true, data: 'Verification email sent!' }
+    return { success: 'Verification email sent!' }
   } catch (error) {
-    return { success: false, data: (error as Error).message }
+    if (error instanceof Error) {
+      return { error: (error as Error).message }
+    } else {
+      return { error: 'Something went wrong' }
+    }
   }
 }
 
-async function resendVerificationEmail(
-  email: string,
-): Promise<TResponse<string>> {
+async function resendVerificationEmail(email: string): Promise<TResponse> {
   const existingUser = await getUserByEmail(email)
   if (!existingUser) {
-    return {
-      success: false,
-      data: 'User not found',
-    }
+    throw new Error('User not found')
   }
 
   if (existingUser.emailVerified) {
-    return {
-      success: false,
-      data: 'Email already verified',
-    }
+    throw new Error('Email already verified')
   }
 
   return sendVerificationEmail(email)
 }
 
-async function verifyEmail(token: string | null): Promise<TResponse<string>> {
-  if (!token) {
-    return {
-      success: false,
-      data: 'Token not found. Please use the link in your email to verify your email.',
-    }
-  }
-
+async function verifyEmail(token: string | null): Promise<TResponse> {
   try {
+    if (!token) {
+      throw new Error(
+        'Token not found. Please use the link in your email to verify your email.',
+      )
+    }
+
     const existingToken = await getVerificationTokenByToken(token)
 
     if (!existingToken) {
-      return {
-        success: false,
-        data: 'Invalid token. Please use the link in your email to verify your email.',
-      }
+      throw new Error(
+        'Invalid token. Please use the link in your email to verify your email.',
+      )
     }
 
     const isTokenExpired =
@@ -177,41 +143,32 @@ async function verifyEmail(token: string | null): Promise<TResponse<string>> {
 
     if (isTokenExpired) {
       await deleteVerificationToken(existingToken.token)
-      return {
-        success: false,
-        data: 'Token has expired. Please use the button below to get a new verification email.',
-      }
+      throw new Error(
+        'Token has expired. Please use the button below to get a new verification email.',
+      )
     }
 
     const user = await getUserByEmail(existingToken.email)
 
     if (!user) {
       await deleteVerificationToken(existingToken.token)
-      return {
-        success: false,
-        data: 'User not found. You need to create an account first.',
-      }
+      throw new Error('User not found. You need to create an account first.')
     }
 
     if (user.emailVerified) {
       await deleteVerificationToken(existingToken.token)
-      return {
-        success: true,
-        data: 'Your email is already verified!',
-      }
+      return { success: 'Your email is already verified!' }
     }
 
     await deleteVerificationToken(existingToken.token)
     await updateUserVerification(user.id)
 
-    return {
-      success: true,
-      data: 'Email verified successfully!',
-    }
+    return { success: 'Email verified successfully!' }
   } catch (error) {
-    return {
-      success: false,
-      data: (error as Error).message,
+    if (error instanceof Error) {
+      return { error: (error as Error).message }
+    } else {
+      return { error: 'Something went wrong' }
     }
   }
 }
