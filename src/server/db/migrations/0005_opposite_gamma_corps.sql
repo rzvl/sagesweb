@@ -1,0 +1,1 @@
+ALTER TABLE "token" RENAME COLUMN "sent_at" TO "sentAt";

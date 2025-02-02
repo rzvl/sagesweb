@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
@@ -16,19 +15,21 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { useToast } from '@/hooks/use-toast'
 import { loginSchema } from '@/lib/validations'
-import { login } from '@/server/actions/auth.actions'
+import type { LoginSchema } from '@/lib/validations'
+import { login } from '@/server/actions/auth'
 import type { TResponse } from '@/lib/types'
 import { AlertBox, Loader } from '@/components/elements'
 import PasswordInput from '@/components/features/auth/password-input'
+import { emailNotVerifiedMessage } from '@/lib/constants'
 
 export default function LogInForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
 
   const router = useRouter()
 
-  const form = useForm<z.infer<typeof loginSchema>>({
+  const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
@@ -36,22 +37,23 @@ export default function LogInForm() {
     },
   })
 
-  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
+  const { toast } = useToast()
+
+  const onSubmit = async (values: LoginSchema) => {
     setError('')
-    setIsSubmitting(true)
     const response: TResponse = await login(values)
     form.reset()
-    setIsSubmitting(false)
 
     if (response.success) {
       router.push('/')
-    }
-
-    if (response.error) {
-      if (response.error === 'Email not verified') {
+      toast({
+        description: "You're logged in!",
+      })
+    } else {
+      if (response.message === emailNotVerifiedMessage) {
         router.push(`/login/resend-verification-email?email=${values.email}`)
       }
-      setError(response.error)
+      setError(response.message)
     }
   }
 
@@ -66,7 +68,7 @@ export default function LogInForm() {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
-                  disabled={isSubmitting}
+                  disabled={form.formState.isSubmitting}
                   placeholder="name@example.com"
                   {...field}
                 />
@@ -83,7 +85,7 @@ export default function LogInForm() {
               <div className="flex items-center">
                 <FormLabel>Password</FormLabel>
                 <Link
-                  href="#"
+                  href="/login/forgot-password"
                   className="ml-auto text-sm underline-offset-4 hover:underline"
                 >
                   Forgot your password?
@@ -91,7 +93,7 @@ export default function LogInForm() {
               </div>
               <FormControl>
                 <PasswordInput
-                  disabled={isSubmitting}
+                  disabled={form.formState.isSubmitting}
                   placeholder="********"
                   {...field}
                 />
@@ -101,8 +103,12 @@ export default function LogInForm() {
           )}
         />
         {error && <AlertBox variant="destructive" message={error} />}
-        <Button type="submit" disabled={isSubmitting} className="w-full">
-          {isSubmitting ? <Loader /> : 'Log In'}
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="w-full"
+        >
+          {form.formState.isSubmitting ? <Loader /> : 'Log In'}
         </Button>
       </form>
     </Form>

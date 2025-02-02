@@ -1,9 +1,8 @@
 import { cache } from 'react'
 import { eq } from 'drizzle-orm'
-import { z } from 'zod'
 import { db } from '@/server/db'
 import { users } from '@/server/db/schema'
-import { signupSchema } from '@/lib/validations'
+import type { SignupSchema } from '@/lib/validations'
 import 'server-only'
 
 const getUserByEmail = cache(async (email: string) => {
@@ -22,7 +21,7 @@ const getUserById = cache(async (id: string) => {
   return user
 })
 
-async function addUser(user: z.infer<typeof signupSchema>) {
+async function addUser(user: SignupSchema) {
   await db.insert(users).values(user)
 }
 

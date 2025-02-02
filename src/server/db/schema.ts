@@ -10,9 +10,13 @@ import {
 import { AdapterAccountType } from 'next-auth/adapters'
 import { createId } from '@paralleldrive/cuid2'
 
-export const RoleEnum = pgEnum('roles', ['user', 'admin'])
+const RoleEnum = pgEnum('roles', ['seeker', 'teacher', 'admin'])
+const TokenTypeEnum = pgEnum('tokenTypes', [
+  'emailVerification',
+  'passwordReset',
+])
 
-export const users = pgTable('user', {
+const users = pgTable('user', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => createId()),
@@ -22,10 +26,10 @@ export const users = pgTable('user', {
   emailVerified: timestamp('emailVerified', { mode: 'date' }),
   image: text('image'),
   twoFactorEnabled: boolean('twoFactorEnabled').default(false),
-  role: RoleEnum('role').default('user'),
+  role: RoleEnum('role').default('seeker'),
 })
 
-export const accounts = pgTable(
+const accounts = pgTable(
   'account',
   {
     userId: text('userId')
@@ -49,29 +53,64 @@ export const accounts = pgTable(
   }),
 )
 
-export const verificationTokens = pgTable(
-  'verificationToken',
+const tokens = pgTable(
+  'token',
   {
     id: text('id')
       .notNull()
       .$defaultFn(() => createId()),
     token: text('token').notNull(),
-    sentAt: timestamp('sent_at', {
+    sentAt: timestamp('sentAt', {
       withTimezone: true,
       mode: 'date',
     }).notNull(),
     email: text('email').notNull(),
+    tokenType: TokenTypeEnum('tokenType').notNull(),
   },
-  (verificationToken) => ({
+  (token) => ({
     pk: primaryKey({
-      columns: [verificationToken.id, verificationToken.token],
+      columns: [token.id, token.token],
     }),
   }),
 )
 
-export type SelectUser = typeof users.$inferSelect
-export type InsertUser = typeof users.$inferInsert
-export type SelectAccount = typeof accounts.$inferSelect
-export type InsertAccount = typeof accounts.$inferInsert
-export type SelectVerificationToken = typeof verificationTokens.$inferSelect
-export type InsertVerificationToken = typeof verificationTokens.$inferInsert
+const authenticators = pgTable(
+  'authenticator',
+  {
+    credentialID: text('credentialID').notNull().unique(),
+    userId: text('userId')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    providerAccountId: text('providerAccountId').notNull(),
+    credentialPublicKey: text('credentialPublicKey').notNull(),
+    counter: integer('counter').notNull(),
+    credentialDeviceType: text('credentialDeviceType').notNull(),
+    credentialBackedUp: boolean('credentialBackedUp').notNull(),
+    transports: text('transports'),
+  },
+  (authenticator) => [
+    {
+      compositePK: primaryKey({
+        columns: [authenticator.userId, authenticator.credentialID],
+      }),
+    },
+  ],
+)
+
+type UserRole = (typeof RoleEnum)['enumValues'][number]
+type TokenType = (typeof TokenTypeEnum)['enumValues'][number]
+type SelectUser = typeof users.$inferSelect
+type InsertUser = typeof users.$inferInsert
+type SelectToken = typeof tokens.$inferSelect
+type InsertToken = typeof tokens.$inferInsert
+
+export { users, accounts, tokens, authenticators, RoleEnum, TokenTypeEnum }
+
+export type {
+  UserRole,
+  TokenType,
+  SelectUser,
+  InsertUser,
+  SelectToken,
+  InsertToken,
+}

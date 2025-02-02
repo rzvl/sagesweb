@@ -7,7 +7,17 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu'
 import { cn } from '@/lib/utils'
-import { navMenuItems } from '@/lib/constants'
+
+const navMenuItems = [
+  {
+    name: 'Spiritual Teachers',
+    href: '/teachers',
+  },
+  {
+    name: 'Spiritual Resources',
+    href: '/resources',
+  },
+]
 
 export default function NavMenu() {
   return (

@@ -1,49 +1,51 @@
 import { cache } from 'react'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { createId } from '@paralleldrive/cuid2'
 import { db } from '@/server/db'
-import { InsertVerificationToken, verificationTokens } from '@/server/db/schema'
+import { tokens } from '@/server/db/schema'
+import type { InsertToken, TokenType } from '@/server/db/schema'
 import 'server-only'
 
-async function generateVerificationToken(email: string) {
+async function generateToken(email: string, tokenType: TokenType) {
   const token = createId()
-  const verificationToken = await addVerificationToken({
+  const addedToken = await addToken({
     token,
     email,
+    tokenType,
     sentAt: new Date(),
   })
 
-  return verificationToken[0]
+  return addedToken[0]
 }
 
-const getVerificationTokenByEmail = cache(async (email: string) => {
-  const verificationToken = await db.query.verificationTokens.findFirst({
-    where: eq(verificationTokens.email, email),
+const getTokenByEmail = cache(async (email: string, tokenType: TokenType) => {
+  const token = await db.query.tokens.findFirst({
+    where: and(eq(tokens.email, email), eq(tokens.tokenType, tokenType)),
   })
-  if (!verificationToken) return null
-  return verificationToken
+  if (!token) return null
+  return token
 })
 
-const getVerificationTokenByToken = cache(async (token: string) => {
-  const verificationToken = await db.query.verificationTokens.findFirst({
-    where: eq(verificationTokens.token, token),
+const getTokenByToken = cache(async (token: string) => {
+  const existingToken = await db.query.tokens.findFirst({
+    where: eq(tokens.token, token),
   })
-  if (!verificationToken) return null
-  return verificationToken
+  if (!existingToken) return null
+  return existingToken
 })
 
-async function deleteVerificationToken(token: string) {
-  await db.delete(verificationTokens).where(eq(verificationTokens.token, token))
+async function deleteToken(token: string) {
+  await db.delete(tokens).where(eq(tokens.token, token))
 }
 
-async function addVerificationToken(values: InsertVerificationToken) {
-  return await db.insert(verificationTokens).values(values).returning()
+async function addToken(values: InsertToken) {
+  return await db.insert(tokens).values(values).returning()
 }
 
 export {
-  addVerificationToken,
-  deleteVerificationToken,
-  generateVerificationToken,
-  getVerificationTokenByEmail,
-  getVerificationTokenByToken,
+  addToken,
+  deleteToken,
+  generateToken,
+  getTokenByEmail,
+  getTokenByToken,
 }

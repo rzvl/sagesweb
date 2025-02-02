@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation'
 import { MailCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { verifyEmail } from '@/server/actions/auth.actions'
+import { verifyEmail } from '@/server/actions/auth'
 import { AlertBox, Loader } from '@/components/elements'
 import {
   AuthPageContainer,
@@ -26,10 +26,9 @@ export default function Page() {
       const result = await verifyEmail(token)
 
       if (result.success) {
-        setSuccess(result.success)
-      }
-      if (result.error) {
-        setError(result.error)
+        setSuccess(result.message)
+      } else {
+        setError(result.message)
       }
       setIsLoading(false)
     }

@@ -1,1 +1,0 @@
-ALTER TABLE "verificationToken" RENAME COLUMN "identifier" TO "id";

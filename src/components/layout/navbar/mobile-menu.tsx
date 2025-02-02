@@ -1,4 +1,5 @@
-import { Separator } from '@/components/ui/separator'
+import Link from 'next/link'
+import { Menu } from 'lucide-react'
 import {
   Sheet,
   SheetClose,
@@ -8,9 +9,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { mobileMenuItems } from '@/lib/constants'
-import { Menu } from 'lucide-react'
-import Link from 'next/link'
+import { Separator } from '@/components/ui/separator'
+
+const mobileMenuItems = [
+  { name: 'Home', href: '/' },
+  { name: 'Spiritual Teachers', href: '/teachers' },
+  { name: 'Resources', href: '/resources' },
+]
 
 export default function MobileMenu() {
   return (

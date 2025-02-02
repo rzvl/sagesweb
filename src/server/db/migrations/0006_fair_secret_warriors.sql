@@ -1,0 +1,11 @@
+-- ALTER TYPE "public"."token_types" RENAME TO "tokenTypes";--> statement-breakpoint
+-- ALTER TABLE "token" ALTER COLUMN "tokenType" DROP DEFAULT;--> statement-breakpoint
+-- DROP TYPE "public"."roles";--> statement-breakpoint
+-- CREATE TYPE "public"."roles" AS ENUM('seeker', 'teacher', 'admin');--> statement-breakpoint
+-- ALTER TABLE "public"."user" ALTER COLUMN "role" SET DATA TYPE text;--> statement-breakpoint
+-- ALTER TABLE "user" ALTER COLUMN "role" SET DEFAULT 'seeker';--> statement-breakpoint
+-- ALTER TABLE "public"."user" ALTER COLUMN "role" SET DATA TYPE "public"."roles" USING "role"::"public"."roles";--> statement-breakpoint
+-- ALTER TABLE "public"."token" ALTER COLUMN "tokenType" SET DATA TYPE text;--> statement-breakpoint
+-- DROP TYPE "public"."tokenTypes";--> statement-breakpoint
+-- CREATE TYPE "public"."tokenTypes" AS ENUM('emailVerification', 'passwordReset');--> statement-breakpoint
+-- ALTER TABLE "public"."token" ALTER COLUMN "tokenType" SET DATA TYPE "public"."tokenTypes" USING "tokenType"::"public"."tokenTypes";

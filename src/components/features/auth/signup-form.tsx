@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
@@ -16,17 +15,17 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { signupSchema } from '@/lib/validations'
-import { signup } from '@/server/actions/auth.actions'
+import type { SignupSchema } from '@/lib/validations'
+import { signup } from '@/server/actions/auth'
 import { AlertBox, Loader } from '@/components/elements'
 import PasswordInput from './password-input'
 
 export default function SignUpForm() {
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const form = useForm<z.infer<typeof signupSchema>>({
+  const form = useForm<SignupSchema>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       email: '',
@@ -34,21 +33,17 @@ export default function SignUpForm() {
     },
   })
 
-  const onSubmit = async (values: z.infer<typeof signupSchema>) => {
+  const onSubmit = async (values: SignupSchema) => {
     setError('')
     setSuccess('')
-    setIsLoading(true)
     const response = await signup(values)
     form.reset()
-    setIsLoading(false)
-
-    if (response.error) {
-      setError(response.error)
-    }
 
     if (response.success) {
-      setSuccess(response.success)
+      setSuccess(response.message)
       router.push(`/signup/success?email=${values.email}`)
+    } else {
+      setError(response.message)
     }
   }
 
@@ -63,7 +58,7 @@ export default function SignUpForm() {
               <FormLabel>Email</FormLabel>
               <FormControl>
                 <Input
-                  disabled={isLoading}
+                  disabled={form.formState.isSubmitting}
                   placeholder="name@example.com"
                   {...field}
                 />
@@ -80,7 +75,7 @@ export default function SignUpForm() {
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <PasswordInput
-                  disabled={isLoading}
+                  disabled={form.formState.isSubmitting}
                   placeholder="********"
                   {...field}
                 />
@@ -91,8 +86,12 @@ export default function SignUpForm() {
         />
         {error && <AlertBox variant="destructive" message={error} />}
         {success && <AlertBox variant="success" message={success} />}
-        <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? <Loader /> : 'Create Account'}
+        <Button
+          type="submit"
+          disabled={form.formState.isSubmitting}
+          className="w-full"
+        >
+          {form.formState.isSubmitting ? <Loader /> : 'Create Account'}
         </Button>
       </form>
     </Form>

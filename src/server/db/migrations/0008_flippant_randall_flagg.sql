@@ -1,1 +1,0 @@
-ALTER TABLE "verificationToken" ALTER COLUMN "sent_at" SET DEFAULT '2025-01-12T14:31:42.331Z';

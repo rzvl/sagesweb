@@ -1,12 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { useTimer } from 'react-timer-hook'
 import { Button } from '@/components/ui/button'
-import { resendVerificationEmail } from '@/server/actions/auth.actions'
+import { resendVerificationEmail } from '@/server/actions/auth'
 import { AlertBox, Loader } from '@/components/elements'
 import { addMinutes } from '@/lib/utils'
+import { emailIsVerifiedMessage } from '@/lib/constants'
+import { useSearchParams } from 'next/navigation'
 
 export default function ResendEmailVerificationButton({
   autoStart = true,
@@ -16,6 +18,7 @@ export default function ResendEmailVerificationButton({
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [showLoginBtn, setShowLoginBtn] = useState(false)
 
   const searchParams = useSearchParams()
   const email = searchParams.get('email')
@@ -38,12 +41,14 @@ export default function ResendEmailVerificationButton({
 
     const res = await resendVerificationEmail(email)
     if (res.success) {
-      setSuccess(res.success)
+      setSuccess(res.message)
+      if (res.message === emailIsVerifiedMessage) {
+        setShowLoginBtn(true)
+        return
+      }
       restart(addMinutes(new Date(), 5))
-    }
-
-    if (res.error) {
-      setError(res.error)
+    } else {
+      setError(res.message)
     }
 
     setIsLoading(false)
@@ -57,15 +62,27 @@ export default function ResendEmailVerificationButton({
     <div className="flex w-full flex-col items-center justify-center gap-5">
       {error && <AlertBox variant="destructive" message={error} />}
       {success && <AlertBox variant="success" message={success} />}
-      <Button
-        variant="outline"
-        className="w-full"
-        size="lg"
-        disabled={isRunning}
-        onClick={() => handleResendVerificationEmail()}
-      >
-        {isLoading ? <Loader /> : buttonText}
-      </Button>
+      {showLoginBtn ? (
+        <LoginBtn />
+      ) : (
+        <Button
+          variant="outline"
+          className="w-full"
+          size="lg"
+          disabled={isRunning}
+          onClick={() => handleResendVerificationEmail()}
+        >
+          {isLoading ? <Loader /> : buttonText}
+        </Button>
+      )}
     </div>
+  )
+}
+
+function LoginBtn() {
+  return (
+    <Button variant="outline" className="w-full" asChild>
+      <Link href="/login">Log In</Link>
+    </Button>
   )
 }

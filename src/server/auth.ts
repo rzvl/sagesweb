@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth'
+import NextAuth, { NextAuthConfig } from 'next-auth'
 import Google from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
@@ -6,11 +6,17 @@ import { DrizzleAdapter } from '@auth/drizzle-adapter'
 import { db } from '@/server/db'
 import { getUserByEmail } from '@/server/data/user'
 import { loginSchema } from '@/lib/validations'
+import { emailNotVerifiedMessage } from '@/lib/constants'
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+const config = {
   adapter: DrizzleAdapter(db),
+  pages: {
+    signIn: '/auth/signin',
+    signOut: '/auth/signout',
+  },
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   providers: [
     Google,
@@ -29,11 +35,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const user = await getUserByEmail(email)
         if (!user) {
-          throw new Error('User not found! Please create an account first.')
+          throw new Error('User not found! Please sign up first.')
         }
         if (!user.emailVerified) {
-          // if you change below message, change it in the logni-form.tsx too
-          throw new Error('Email not verified')
+          throw new Error(emailNotVerifiedMessage)
         }
         if (!user.password) {
           throw new Error('incorrect email or password!')
@@ -49,4 +54,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-})
+  // callbacks: {
+  //   authorized: ({ request }) => {
+  //     const isTryingToAccess = request.nextUrl.pathname.includes('/app')
+
+  //     if (isTryingToAccess) {
+  //       return false
+  //     } else {
+  //       return true
+  //     }
+  //   },
+  // },
+} satisfies NextAuthConfig
+
+export const { handlers, signIn, signOut, auth } = NextAuth(config)
