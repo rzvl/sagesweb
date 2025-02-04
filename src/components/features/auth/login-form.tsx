@@ -1,8 +1,6 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
@@ -15,20 +13,13 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { useToast } from '@/hooks/use-toast'
 import { loginSchema } from '@/lib/validations'
 import type { LoginSchema } from '@/lib/validations'
-import { login } from '@/server/actions/auth'
-import type { TResponse } from '@/lib/types'
-import { AlertBox, Loader } from '@/components/elements'
+import { loginWithEmail as login } from '@/server/actions/auth'
+import { Loader } from '@/components/elements'
 import PasswordInput from '@/components/features/auth/password-input'
-import { emailNotVerifiedMessage } from '@/lib/constants'
 
 export default function LogInForm() {
-  const [error, setError] = useState('')
-
-  const router = useRouter()
-
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -37,24 +28,13 @@ export default function LogInForm() {
     },
   })
 
-  const { toast } = useToast()
-
   const onSubmit = async (values: LoginSchema) => {
-    setError('')
-    const response: TResponse = await login(values)
-    form.reset()
+    await login(values)
+    // form.reset()
 
-    if (response.success) {
-      router.push('/')
-      toast({
-        description: "You're logged in!",
-      })
-    } else {
-      if (response.message === emailNotVerifiedMessage) {
-        router.push(`/login/resend-verification-email?email=${values.email}`)
-      }
-      setError(response.message)
-    }
+    //   if (response.message === emailNotVerifiedMessage) {
+    //     router.push(`/login/resend-verification-email?email=${values.email}`)
+    //   }
   }
 
   return (
@@ -102,7 +82,7 @@ export default function LogInForm() {
             </FormItem>
           )}
         />
-        {error && <AlertBox variant="destructive" message={error} />}
+        {/* {error && <AlertBox variant="destructive" message={error} />} */}
         <Button
           type="submit"
           disabled={form.formState.isSubmitting}

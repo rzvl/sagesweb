@@ -1,4 +1,4 @@
-import login from './login'
+import { loginWithApple, loginWithEmail, loginWithGoogle } from './login'
 import logout from './logout'
 import signup from './signup'
 import verifyEmail from './verify-email'
@@ -7,7 +7,9 @@ import sendPasswordResetEmail from './send-password-reset-email'
 import resetPassword from './reset-password'
 
 export {
-  login,
+  loginWithApple,
+  loginWithEmail,
+  loginWithGoogle,
   logout,
   signup,
   verifyEmail,

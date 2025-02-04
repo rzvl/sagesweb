@@ -9,7 +9,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet'
-import { Separator } from '@/components/ui/separator'
 
 const mobileMenuItems = [
   { name: 'Home', href: '/' },
@@ -36,9 +35,6 @@ export default function MobileMenu() {
             </SheetDescription>
           </SheetHeader>
           <ul className="mt-10 flex flex-col gap-3">
-            <li className="sm:hidden">Search</li>
-            <li className="sm:hidden">Change Theme</li>
-            <Separator className="sm:hidden" />
             {mobileMenuItems.map((item) => (
               <li key={item.name}>
                 <SheetClose asChild>

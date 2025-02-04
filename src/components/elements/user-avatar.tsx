@@ -11,8 +11,8 @@ export default function UserAvatar({ className, src }: UserAvatarProps) {
   return (
     <Avatar className={cn('h-6 w-6 rounded-full', className)}>
       <AvatarImage src={src} alt="avatar" />
-      <AvatarFallback>
-        <User className="h-3/4 w-3/4 text-gray-950" />
+      <AvatarFallback className="bg-primary text-primary-foreground">
+        <User className="h-3/4 w-3/4" />
       </AvatarFallback>
     </Avatar>
   )

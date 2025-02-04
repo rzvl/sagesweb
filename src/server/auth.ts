@@ -11,8 +11,7 @@ import { emailNotVerifiedMessage } from '@/lib/constants'
 const config = {
   adapter: DrizzleAdapter(db),
   pages: {
-    signIn: '/auth/signin',
-    signOut: '/auth/signout',
+    signIn: '/login',
   },
   session: {
     strategy: 'jwt',
@@ -22,16 +21,11 @@ const config = {
     Google,
     Credentials({
       credentials: {
-        username: { label: 'Username' },
-        password: { label: 'Password', type: 'password' },
+        email: {},
+        password: {},
       },
       async authorize(credentials) {
-        const validatedFields = loginSchema.safeParse(credentials)
-        if (!validatedFields.success) {
-          throw new Error('Invalid credentials!')
-        }
-
-        const { email, password } = validatedFields.data
+        const { email, password } = await loginSchema.parseAsync(credentials)
 
         const user = await getUserByEmail(email)
         if (!user) {
@@ -54,17 +48,6 @@ const config = {
       },
     }),
   ],
-  // callbacks: {
-  //   authorized: ({ request }) => {
-  //     const isTryingToAccess = request.nextUrl.pathname.includes('/app')
-
-  //     if (isTryingToAccess) {
-  //       return false
-  //     } else {
-  //       return true
-  //     }
-  //   },
-  // },
 } satisfies NextAuthConfig
 
 export const { handlers, signIn, signOut, auth } = NextAuth(config)

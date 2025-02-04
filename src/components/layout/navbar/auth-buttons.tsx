@@ -12,7 +12,7 @@ export default async function AuthButtons() {
   }
 
   return (
-    <div className="items-center justify-center gap-2">
+    <div className="flex items-center justify-center gap-2">
       <Button variant="outline" className="h-10 w-fit" asChild>
         <Link href="/login">Log In</Link>
       </Button>

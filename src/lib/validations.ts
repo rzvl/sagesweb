@@ -5,6 +5,7 @@ const loginSchema = z.object({
     .string()
     .trim()
     .min(1, { message: 'Email is required' })
+    .email({ message: 'Invalid email address' })
     .transform((val) => val.toLowerCase()),
   password: z.string().trim().min(1, { message: 'Password is required' }),
 })
@@ -21,7 +22,7 @@ const signupSchema = z.object({
     .string()
     .trim()
     .min(1, { message: 'Password is required' })
-    .min(6, { message: 'Password must be at least 6 characters' })
+    .min(8, { message: 'Password must be at least 8 characters' })
     .max(64, { message: 'Password must be less than 64 characters' }),
 })
 
