@@ -4,9 +4,10 @@ import Credentials from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { DrizzleAdapter } from '@auth/drizzle-adapter'
 import { db } from '@/server/db'
-import { getUserByEmail } from '@/server/data/user'
 import { loginSchema } from '@/lib/validations'
 import { emailNotVerifiedMessage } from '@/lib/constants'
+import { eq } from 'drizzle-orm'
+import { users } from './db/schema'
 
 const config = {
   adapter: DrizzleAdapter(db),
@@ -27,7 +28,10 @@ const config = {
       async authorize(credentials) {
         const { email, password } = await loginSchema.parseAsync(credentials)
 
-        const user = await getUserByEmail(email)
+        const user = await db.query.users.findFirst({
+          where: eq(users.email, email),
+        })
+
         if (!user) {
           throw new Error('User not found! Please sign up first.')
         }
