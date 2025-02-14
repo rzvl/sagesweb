@@ -3,6 +3,7 @@ import {
   AuthPageContainer,
   UsernameSetupForm,
 } from '@/components/features/auth'
+import { Suspense } from 'react'
 
 export default function Page() {
   return (
@@ -33,7 +34,9 @@ export default function Page() {
           <p className="text-sm leading-5 text-muted-foreground">
             Choose your username now and start participating!
           </p>
-          <UsernameSetupForm />
+          <Suspense>
+            <UsernameSetupForm />
+          </Suspense>
         </CardContent>
       </Card>
     </AuthPageContainer>

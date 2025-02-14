@@ -5,7 +5,7 @@ import AvatarDropdown from './avatar-dropdown'
 
 export default async function AuthButtons() {
   const session = await auth()
-  const user = session?.user
+  const user = session?.user ?? null
 
   if (user) {
     return <AvatarDropdown user={user} />

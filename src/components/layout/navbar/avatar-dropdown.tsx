@@ -38,9 +38,11 @@ export default function AvatarDropdown({ user }: AvatarDropdownProps = {}) {
           {user?.name && (
             <span className="text-sm font-medium">{user.name}</span>
           )}
-          <span className="text-xs text-muted-foreground">
-            {user.username ? `@${user.username}` : user.email}
-          </span>
+          {(user?.username || user?.email) && (
+            <span className="text-xs text-muted-foreground">
+              {user.username ? `@${user.username}` : user.email}
+            </span>
+          )}
         </div>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
