@@ -1,0 +1,1 @@
+-- ALTER TABLE "user" ALTER COLUMN "authProvider" SET DATA TYPE authProvider;

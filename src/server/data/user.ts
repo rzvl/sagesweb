@@ -21,8 +21,20 @@ const getUserById = cache(async (id: string) => {
   return user
 })
 
+const getUserByUsername = cache(async (username: string) => {
+  const user = await db.query.users.findFirst({
+    where: eq(users.username, username),
+  })
+  if (!user) return null
+  return user
+})
+
 async function addUser(user: SignupSchema) {
   await db.insert(users).values(user)
+}
+
+async function updateUsername(id: string, username: string) {
+  await db.update(users).set({ username }).where(eq(users.id, id))
 }
 
 async function updateUserVerification(id: string) {
@@ -44,7 +56,9 @@ export {
   addUser,
   getUserByEmail,
   getUserById,
-  updateUserVerification,
+  getUserByUsername,
   preloadUserByEmail,
   preloadUserById,
+  updateUsername,
+  updateUserVerification,
 }

@@ -2,11 +2,8 @@
 
 import { getUserByEmail, updateUserVerification } from '@/server/data/user'
 import { deleteToken, getTokenByToken } from '@/server/data/token'
-import { TResponse } from '@/lib/types'
 
-export default async function verifyEmail(
-  token: string | null,
-): Promise<TResponse> {
+export default async function verifyEmail(token: string | null) {
   try {
     if (!token) {
       throw new Error(
@@ -41,18 +38,18 @@ export default async function verifyEmail(
 
     if (user.emailVerified) {
       await deleteToken(existingToken.token)
-      return { success: true, message: 'Your email is already verified!' }
+      return { success: true, message: 'Email already verified.' }
     }
 
     await deleteToken(existingToken.token)
     await updateUserVerification(user.id)
 
-    return { success: true, message: 'Email verified successfully!' }
+    return { success: true, message: 'Email verified successfully.' }
   } catch (error) {
     if (error instanceof Error) {
-      return { success: false, message: (error as Error).message }
+      return { success: false, message: error.message }
     } else {
-      return { success: false, message: 'Something went wrong' }
+      return { success: false, message: 'Something went wrong.' }
     }
   }
 }

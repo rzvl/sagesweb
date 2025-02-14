@@ -1,0 +1,1 @@
+CREATE TYPE authProviders AS ENUM ('credentials', 'google', 'github');

@@ -2,7 +2,8 @@
 
 import { useTransition } from 'react'
 import { createPortal } from 'react-dom'
-import type { User } from 'next-auth'
+import Link from 'next/link'
+import type { Session } from 'next-auth'
 import { Bookmark, LogOut, Settings, User as UserIcon } from 'lucide-react'
 import {
   DropdownMenu,
@@ -17,10 +18,10 @@ import { logout } from '@/server/actions/auth'
 import { cn } from '@/lib/utils'
 
 type AvatarDropdownProps = {
-  user: User | undefined
+  user?: Session['user']
 }
 
-export default function AvatarDropdown({ user }: AvatarDropdownProps) {
+export default function AvatarDropdown({ user }: AvatarDropdownProps = {}) {
   const [isPending, startTransition] = useTransition()
 
   const menuItemStyles =
@@ -37,13 +38,17 @@ export default function AvatarDropdown({ user }: AvatarDropdownProps) {
           {user?.name && (
             <span className="text-sm font-medium">{user.name}</span>
           )}
-          <span className="text-xs text-muted-foreground">{user?.email}</span>
+          <span className="text-xs text-muted-foreground">
+            {user.username ? `@${user.username}` : user.email}
+          </span>
         </div>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className={menuItemStyles}>
-          <UserIcon className="mr-2 h-4 w-4 transition-all duration-300 ease-in-out group-hover:scale-75" />
-          Profile
+        <DropdownMenuItem className={menuItemStyles} asChild>
+          <Link href="/account/profile" className="flex items-center gap-2">
+            <UserIcon className="mr-2 h-4 w-4 transition-all duration-300 ease-in-out group-hover:scale-75" />
+            Profile
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem className={menuItemStyles}>
           <Bookmark className="mr-2 h-4 w-4 transition-all duration-300 ease-in-out group-hover:scale-75" />

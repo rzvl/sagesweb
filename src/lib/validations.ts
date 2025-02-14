@@ -1,3 +1,4 @@
+import { checkUsernameAvailability } from '@/server/actions/auth'
 import { z } from 'zod'
 
 const loginSchema = z.object({
@@ -50,15 +51,41 @@ const resetPasswordSchema = z.object({
     .optional(),
 })
 
+const usernameSchema = z
+  .string()
+  .trim()
+  .min(1, { message: 'Username is required' })
+  .min(3, { message: 'Username must be at least 3 characters' })
+  .max(20, { message: 'Username must be at most 20 characters' })
+  .regex(/^[a-zA-Z0-9_]+$/, 'Only letters, numbers, and underscores allowed')
+  .transform((val) => val.toLowerCase())
+  .refine(async (username) => await checkUsernameAvailability(username), {
+    message: 'Username is already taken',
+  })
+
+const usernameSetupSchema = z.object({
+  email: z.string(),
+  username: usernameSchema,
+})
+
 type LoginSchema = z.infer<typeof loginSchema>
 type SignupSchema = z.infer<typeof signupSchema>
 type ForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>
 type ResetPasswordSchema = z.infer<typeof resetPasswordSchema>
+type UsernameSetupSchema = z.infer<typeof usernameSetupSchema>
 
-export { loginSchema, signupSchema, forgotPasswordSchema, resetPasswordSchema }
+export {
+  loginSchema,
+  signupSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  usernameSchema,
+  usernameSetupSchema,
+}
 export type {
   LoginSchema,
   SignupSchema,
   ForgotPasswordSchema,
   ResetPasswordSchema,
+  UsernameSetupSchema,
 }

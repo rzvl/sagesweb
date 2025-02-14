@@ -5,6 +5,7 @@ import verifyEmail from './verify-email'
 import resendVerificationEmail from './resend-verification-email'
 import sendPasswordResetEmail from './send-password-reset-email'
 import resetPassword from './reset-password'
+import { checkUsernameAvailability, setupUsername } from './setup-username'
 
 export {
   loginWithApple,
@@ -16,4 +17,6 @@ export {
   resetPassword,
   resendVerificationEmail,
   sendPasswordResetEmail,
+  setupUsername,
+  checkUsernameAvailability,
 }

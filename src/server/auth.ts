@@ -52,6 +52,40 @@ const config = {
       },
     }),
   ],
+  callbacks: {
+    async jwt({ token, account, user }) {
+      if (account) {
+        token.provider = account.provider
+      }
+      if (user) {
+        token.id = user.id
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (session.user && token.id) {
+        session.user.id = token.id
+      }
+      if (token.email && typeof token.provider === 'string') {
+        const existingUser = await db.query.users.findFirst({
+          where: eq(users.email, token?.email),
+        })
+
+        if (existingUser) {
+          session.user.username = existingUser.username
+          session.user.role = existingUser.role
+
+          if (!existingUser.authProvider) {
+            await db
+              .update(users)
+              .set({ authProvider: token?.provider })
+              .where(eq(users.email, token.email))
+          }
+        }
+      }
+      return session
+    },
+  },
 } satisfies NextAuthConfig
 
 export const { handlers, signIn, signOut, auth } = NextAuth(config)

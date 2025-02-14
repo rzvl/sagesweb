@@ -31,6 +31,7 @@ export default async function signup(values: SignupSchema): Promise<TResponse> {
     await addUser({
       email,
       password: hashedPassword,
+      authProvider: 'credentials',
     })
 
     return await sendVerificationEmail(email)

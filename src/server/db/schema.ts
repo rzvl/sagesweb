@@ -21,12 +21,14 @@ const users = pgTable('user', {
     .primaryKey()
     .$defaultFn(() => createId()),
   name: text('name'),
-  email: text('email').unique(),
+  email: text('email').unique().notNull(),
+  username: text('username').unique(),
   password: text('password'),
   emailVerified: timestamp('emailVerified', { mode: 'date' }),
   image: text('image'),
   twoFactorEnabled: boolean('twoFactorEnabled').default(false),
-  role: RoleEnum('role').default('seeker'),
+  role: RoleEnum('role').notNull().default('seeker'),
+  authProvider: text('authProvider'),
 })
 
 const accounts = pgTable(

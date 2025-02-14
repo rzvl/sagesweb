@@ -34,6 +34,7 @@ export default function SignUpForm() {
   })
 
   const onSubmit = async (values: SignupSchema) => {
+    console.log('signup form submit')
     setError('')
     setSuccess('')
     const response = await signup(values)

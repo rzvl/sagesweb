@@ -1,0 +1,1 @@
+ALTER TABLE "user" ADD COLUMN "authProvider" authProviders DEFAULT 'credentials' NOT NULL;
