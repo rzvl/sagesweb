@@ -3,9 +3,11 @@
 import bcrypt from 'bcryptjs'
 import { signupSchema } from '@/lib/validations'
 import type { SignupSchema } from '@/lib/validations'
-import { addUser, getUserByEmail } from '@/server/data/user'
+import { getUserByEmail } from '@/server/data/user'
 import { TResponse } from '@/lib/types'
 import sendVerificationEmail from './send-verification-email'
+import { db } from '@/server/db'
+import { users } from '@/server/db/schema'
 
 export default async function signup(values: SignupSchema): Promise<TResponse> {
   try {
@@ -28,7 +30,7 @@ export default async function signup(values: SignupSchema): Promise<TResponse> {
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    await addUser({
+    await db.insert(users).values({
       email,
       password: hashedPassword,
       authProvider: 'credentials',
