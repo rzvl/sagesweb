@@ -53,12 +53,16 @@ export default function AvatarDropdown({ user }: AvatarDropdownProps = {}) {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem className={menuItemStyles}>
-          <Bookmark className="mr-2 h-4 w-4 transition-all duration-300 ease-in-out group-hover:scale-75" />
-          Bookmarks
+          <Link href="/account/bookmarks" className="flex items-center gap-2">
+            <Bookmark className="mr-2 h-4 w-4 transition-all duration-300 ease-in-out group-hover:scale-75" />
+            Bookmarks
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem className={menuItemStyles}>
-          <Settings className="mr-2 h-4 w-4 transition-all duration-300 ease-in-out group-hover:rotate-180" />
-          Settings
+          <Link href="/account/settings" className="flex items-center gap-2">
+            <Settings className="mr-2 h-4 w-4 transition-all duration-300 ease-in-out group-hover:rotate-180" />
+            Settings
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

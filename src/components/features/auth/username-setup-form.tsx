@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -21,12 +21,13 @@ import {
 } from '@/lib/validations'
 import { setupUsername } from '@/server/actions/auth'
 
-export default function UsernameSetupForm() {
+type UsernameSetupFormProps = {
+  email: string
+}
+
+export default function UsernameSetupForm({ email }: UsernameSetupFormProps) {
   const [error, setError] = useState('')
   const [succes, setSuccess] = useState('')
-
-  const searchParams = useSearchParams()
-  const email = searchParams.get('email') || ''
 
   const router = useRouter()
 

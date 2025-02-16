@@ -12,7 +12,6 @@ import {
   AuthPageContainer,
   ResendEmailVerificationButton,
 } from '@/components/features/auth'
-import { useRouter } from 'next/navigation'
 
 export default function Page() {
   const [error, setError] = useState('')
@@ -21,16 +20,12 @@ export default function Page() {
 
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
-  const email = searchParams.get('email')
-
-  const router = useRouter()
 
   useEffect(() => {
     async function verifyUserEamil(token: string | null) {
       const response = await verifyEmail(token)
       if (response.success) {
         setSuccess(response.message)
-        router.push(`/username-setup?email=${email}`)
       } else {
         setError(response.message)
       }
@@ -38,7 +33,7 @@ export default function Page() {
     }
 
     verifyUserEamil(token)
-  }, [token, email, router])
+  }, [token])
 
   return (
     <AuthPageContainer showHeader>
@@ -54,6 +49,7 @@ export default function Page() {
         </CardContent>
         <CardFooter className="flex flex-col items-center justify-center gap-4">
           {error && <ErrorButtons />}
+          {success && <SuccessButtons />}
         </CardFooter>
       </Card>
     </AuthPageContainer>
@@ -68,6 +64,14 @@ function LoadingMessage() {
         Verifying your email...
       </p>
     </div>
+  )
+}
+
+function SuccessButtons() {
+  return (
+    <Button variant="outline" className="w-full" asChild>
+      <Link href="/login">Log In</Link>
+    </Button>
   )
 }
 
