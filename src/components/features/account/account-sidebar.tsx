@@ -13,14 +13,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Logo, UserAvatar } from '@/components/elements'
 import AccountSidebarButton from './account-sidebar-button'
-import LogoutMenuItem from './logout-menu-item'
+import SidebarBottomMenu from './sidebar-bottom-menu'
 
 const items = [
   {
@@ -93,30 +88,25 @@ function AccountSidebarFooter({ session }: AccountSidebarProps) {
     <SidebarFooter>
       <SidebarMenu>
         <SidebarMenuItem>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <SidebarMenuButton className="h-12">
-                <div className="flex w-full items-center gap-4">
-                  <UserAvatar
-                    src={session?.user.image || undefined}
-                    className="h-9 w-9"
-                  />
-                  <div className="flex flex-col items-start">
-                    <span className="text-xs font-semibold">
-                      {session?.user.name || session?.user.role}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {`@${session?.user.username}` || session?.user.email}
-                    </span>
-                  </div>
-                  <MoreHorizontal className="ml-auto" />
+          <SidebarBottomMenu>
+            <SidebarMenuButton className="h-12">
+              <div className="flex w-full items-center gap-4">
+                <UserAvatar
+                  src={session?.user.image || undefined}
+                  className="h-9 w-9"
+                />
+                <div className="flex flex-col items-start">
+                  <span className="text-xs font-semibold">
+                    {session?.user.name || session?.user.role}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {`@${session?.user.username}` || session?.user.email}
+                  </span>
                 </div>
-              </SidebarMenuButton>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="start">
-              <LogoutMenuItem />
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <MoreHorizontal className="ml-auto" />
+              </div>
+            </SidebarMenuButton>
+          </SidebarBottomMenu>
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarFooter>
