@@ -1,6 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/button'
@@ -13,14 +15,18 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { loginSchema } from '@/lib/validations'
-import type { LoginSchema } from '@/lib/validations'
+import { type Login, loginSchema } from '@/lib/validations/auth'
+import { emailNotVerifiedMessage } from '@/lib/constants'
 import { loginWithEmail as login } from '@/server/actions/auth'
-import { Loader } from '@/components/elements'
+import { AlertBox, Loader } from '@/components/elements'
 import PasswordInput from '@/components/features/auth/password-input'
 
 export default function LogInForm() {
-  const form = useForm<LoginSchema>({
+  const [error, setError] = useState('')
+
+  const router = useRouter()
+
+  const form = useForm<Login>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: '',
@@ -28,13 +34,18 @@ export default function LogInForm() {
     },
   })
 
-  const onSubmit = async (values: LoginSchema) => {
-    await login(values)
-    // form.reset()
+  const onSubmit = async (values: Login) => {
+    setError('')
 
-    //   if (response.message === emailNotVerifiedMessage) {
-    //     router.push(`/login/resend-verification-email?email=${values.email}`)
-    //   }
+    const response = await login(values)
+    form.reset()
+
+    if (response?.error) {
+      if (response.error === emailNotVerifiedMessage) {
+        router.push(`/login/resend-verification-email?email=${values.email}`)
+      }
+      setError(response.error)
+    }
   }
 
   return (
@@ -82,7 +93,7 @@ export default function LogInForm() {
             </FormItem>
           )}
         />
-        {/* {error && <AlertBox variant="destructive" message={error} />} */}
+        {error && <AlertBox variant="destructive" message={error} />}
         <Button
           type="submit"
           disabled={form.formState.isSubmitting}

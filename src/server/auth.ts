@@ -4,15 +4,16 @@ import Credentials from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import { DrizzleAdapter } from '@auth/drizzle-adapter'
 import { db } from '@/server/db'
-import { loginSchema } from '@/lib/validations'
+import { loginSchema } from '@/lib/validations/auth'
 import { emailNotVerifiedMessage } from '@/lib/constants'
 import { eq } from 'drizzle-orm'
-import { users } from './db/schema'
+import { users } from './db/schema/users'
 
 const config = {
   adapter: DrizzleAdapter(db),
   pages: {
     signIn: '/login',
+    error: '/auth-error',
   },
   session: {
     strategy: 'jwt',
@@ -26,7 +27,13 @@ const config = {
         password: {},
       },
       async authorize(credentials) {
-        const { email, password } = await loginSchema.parseAsync(credentials)
+        const validatedFields = loginSchema.safeParse(credentials)
+
+        if (!validatedFields.success) {
+          throw new Error('Invalid credentials!')
+        }
+
+        const { email, password } = validatedFields.data
 
         const user = await db.query.users.findFirst({
           where: eq(users.email, email),
@@ -39,51 +46,59 @@ const config = {
           throw new Error(emailNotVerifiedMessage)
         }
         if (!user.password) {
-          throw new Error('incorrect email or password!')
+          throw new Error(
+            'It looks like you signed up using Google or Apple. Please log in with your OAuth provider instead, or use a different email and password.',
+          )
         }
 
         const passwordMatch = await bcrypt.compare(password, user.password)
 
         if (!passwordMatch) {
-          throw new Error('invalid email or password!')
+          throw new Error('Invalid email or password!')
         }
 
         return user
       },
     }),
   ],
-  callbacks: {
-    async jwt({ token, account, user }) {
-      if (account) {
-        token.provider = account.provider
+  events: {
+    async linkAccount({ user }) {
+      if (user.id) {
+        await db
+          .update(users)
+          .set({ emailVerified: new Date() })
+          .where(eq(users.id, user.id))
       }
-      if (user) {
-        token.id = user.id
-      }
-      return token
     },
+  },
+  callbacks: {
     async session({ session, token }) {
-      if (session.user && token.id) {
-        session.user.id = token.id
-      }
-      if (token.email && typeof token.provider === 'string') {
-        const existingUser = await db.query.users.findFirst({
-          where: eq(users.email, token?.email),
-        })
-
-        if (existingUser) {
-          session.user.username = existingUser.username
-          session.user.role = existingUser.role
-
-          if (!existingUser.authProvider) {
-            await db
-              .update(users)
-              .set({ authProvider: token?.provider })
-              .where(eq(users.email, token.email))
-          }
+      if (session.user) {
+        if (token.sub) {
+          session.user.id = token.sub
         }
+        session.user.role = token.role
+        session.user.username = token.username
       }
+
       return session
+    },
+    async jwt({ token }) {
+      if (!token.sub) {
+        return token
+      }
+      const existingUser = await db.query.users.findFirst({
+        where: eq(users.id, token?.sub),
+      })
+
+      if (!existingUser) {
+        return token
+      }
+
+      token.username = existingUser.username
+      token.role = existingUser.role
+
+      return token
     },
   },
 } satisfies NextAuthConfig

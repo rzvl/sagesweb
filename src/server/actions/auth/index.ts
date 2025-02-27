@@ -1,4 +1,4 @@
-import { loginWithApple, loginWithEmail, loginWithGoogle } from './login'
+import { loginWithEmail, loginWithOAuth } from './login'
 import logout from './logout'
 import signup from './signup'
 import verifyEmail from './verify-email'
@@ -8,9 +8,8 @@ import resetPassword from './reset-password'
 import { checkUsernameAvailability, setupUsername } from './setup-username'
 
 export {
-  loginWithApple,
   loginWithEmail,
-  loginWithGoogle,
+  loginWithOAuth,
   logout,
   signup,
   verifyEmail,

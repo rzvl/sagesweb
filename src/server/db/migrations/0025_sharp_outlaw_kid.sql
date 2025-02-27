@@ -1,0 +1,1 @@
+ALTER TABLE "emailVerificationTokens" RENAME COLUMN "sentAt" TO "expiresAt";

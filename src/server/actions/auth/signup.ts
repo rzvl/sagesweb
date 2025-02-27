@@ -1,15 +1,14 @@
 'use server'
 
 import bcrypt from 'bcryptjs'
-import { signupSchema } from '@/lib/validations'
-import type { SignupSchema } from '@/lib/validations'
+import { type Signup, signupSchema } from '@/lib/validations/auth'
 import { getUserByEmail } from '@/server/data/user'
 import { TResponse } from '@/lib/types'
 import sendVerificationEmail from './send-verification-email'
 import { db } from '@/server/db'
-import { users } from '@/server/db/schema'
+import { users } from '@/server/db/schema/users'
 
-export default async function signup(values: SignupSchema): Promise<TResponse> {
+export default async function signup(values: Signup): Promise<TResponse> {
   try {
     const validatedFields = signupSchema.safeParse(values)
 
@@ -33,7 +32,6 @@ export default async function signup(values: SignupSchema): Promise<TResponse> {
     await db.insert(users).values({
       email,
       password: hashedPassword,
-      authProvider: 'credentials',
     })
 
     return await sendVerificationEmail(email)

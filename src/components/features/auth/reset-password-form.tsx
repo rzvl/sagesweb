@@ -12,8 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { resetPasswordSchema } from '@/lib/validations'
-import type { ResetPasswordSchema } from '@/lib/validations'
+import { type ResetPassword, resetPasswordSchema } from '@/lib/validations/auth'
 import { resetPassword } from '@/server/actions/auth'
 import type { TResponse } from '@/lib/types'
 import { Loader } from '@/components/elements'
@@ -31,7 +30,7 @@ export default function ResetPasswordForm({
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
 
-  const form = useForm<ResetPasswordSchema>({
+  const form = useForm<ResetPassword>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       password: '',
@@ -41,7 +40,7 @@ export default function ResetPasswordForm({
 
   console.log(token)
 
-  const onSubmit = async (values: ResetPasswordSchema) => {
+  const onSubmit = async (values: ResetPassword) => {
     setError('')
     setSuccess('')
     const response: TResponse = await resetPassword(values)

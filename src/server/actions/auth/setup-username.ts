@@ -1,17 +1,14 @@
 'use server'
 
 import { TResponse } from '@/lib/types'
-import {
-  usernameSetupSchema,
-  type UsernameSetupSchema,
-} from '@/lib/validations'
+import { type UsernameSetup, usernameSetupSchema } from '@/lib/validations/auth'
 import {
   getUserByEmail,
   getUserByUsername,
   updateUsername,
 } from '@/server/data/user'
 
-async function setupUsername(values: UsernameSetupSchema): Promise<TResponse> {
+async function setupUsername(values: UsernameSetup): Promise<TResponse> {
   try {
     const validatedFields = await usernameSetupSchema.safeParseAsync(values)
 
@@ -37,13 +34,6 @@ async function setupUsername(values: UsernameSetupSchema): Promise<TResponse> {
 
     if (existingUser.username) {
       throw new Error('Username already set')
-    }
-
-    if (
-      existingUser.authProvider === 'credentials' &&
-      !existingUser.emailVerified
-    ) {
-      throw new Error('You must verify your email address first')
     }
 
     await updateUsername(existingUser.id, username)

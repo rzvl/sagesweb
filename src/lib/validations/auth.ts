@@ -68,11 +68,11 @@ const usernameSetupSchema = z.object({
   username: usernameSchema,
 })
 
-type LoginSchema = z.infer<typeof loginSchema>
-type SignupSchema = z.infer<typeof signupSchema>
-type ForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>
-type ResetPasswordSchema = z.infer<typeof resetPasswordSchema>
-type UsernameSetupSchema = z.infer<typeof usernameSetupSchema>
+type Login = z.infer<typeof loginSchema>
+type Signup = z.infer<typeof signupSchema>
+type ForgotPassword = z.infer<typeof forgotPasswordSchema>
+type ResetPassword = z.infer<typeof resetPasswordSchema>
+type UsernameSetup = z.infer<typeof usernameSetupSchema>
 
 export {
   loginSchema,
@@ -82,10 +82,4 @@ export {
   usernameSchema,
   usernameSetupSchema,
 }
-export type {
-  LoginSchema,
-  SignupSchema,
-  ForgotPasswordSchema,
-  ResetPasswordSchema,
-  UsernameSetupSchema,
-}
+export type { Login, Signup, ForgotPassword, ResetPassword, UsernameSetup }

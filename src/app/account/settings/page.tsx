@@ -1,11 +1,42 @@
-export default function Page() {
+import { ActionSwitch } from '@/components/elements'
+import { ChangePasswordForm } from '@/components/features/account'
+import { auth } from '@/server/auth'
+import Link from 'next/link'
+
+export default async function Page() {
+  const session = await auth()
+
+  const handleToggle = async (isChecked: boolean) => {
+    'use server'
+    return {
+      success: true,
+      message: `Switch is now ${isChecked ? 'ON' : 'OFF'}`,
+    }
+  }
+
   return (
-    <main className="h-screen">
-      <ul>
-        <li>change password</li>
-        <li>setup username</li>
-        <li>two factor authentication</li>
+    <section className="flex w-full justify-center py-10">
+      <ul className="w-full max-w-lg space-y-6">
+        <li className="flex gap-4 rounded-lg border p-3 text-sm text-muted-foreground shadow-sm">
+          <h3 className="font-semibold text-foreground">User Name:</h3>
+          {session?.user.username ? (
+            `@${session?.user.username}`
+          ) : (
+            <Link href="/username-setup">Setup Now</Link>
+          )}
+        </li>
+        <li>
+          <ActionSwitch
+            label="Two-Factor Authentication (2FA)"
+            description="Enable for added account security"
+            onToggleAction={handleToggle}
+          />
+        </li>
+        <li className="space-y-6 rounded-lg border p-3 text-sm font-semibold shadow-sm">
+          <h3>Change Password:</h3>
+          <ChangePasswordForm />
+        </li>
       </ul>
-    </main>
+    </section>
   )
 }

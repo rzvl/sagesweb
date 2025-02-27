@@ -1,0 +1,1 @@
+ALTER TABLE "emailVerificationTokens" DROP COLUMN "tokenType";

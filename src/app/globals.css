@@ -101,3 +101,14 @@ body {
     @apply bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-700 to-teal-700;
   }
 }
+
+
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

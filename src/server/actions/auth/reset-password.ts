@@ -3,13 +3,12 @@
 import { eq } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
 import { getUserByEmail, updateUserVerification } from '@/server/data/user'
-import { resetPasswordSchema } from '@/lib/validations'
-import type { ResetPasswordSchema } from '@/lib/validations'
+import { type ResetPassword, resetPasswordSchema } from '@/lib/validations/auth'
 import { deleteToken, getTokenByToken } from '@/server/data/token'
 import { db } from '@/server/db'
-import { users } from '@/server/db/schema'
+import { users } from '@/server/db/schema/users'
 
-export default async function resetPassword(values: ResetPasswordSchema) {
+export default async function resetPassword(values: ResetPassword) {
   const validatedFields = resetPasswordSchema.safeParse(values)
 
   if (!validatedFields.success) {
@@ -25,7 +24,7 @@ export default async function resetPassword(values: ResetPasswordSchema) {
       )
     }
 
-    const existingToken = await getTokenByToken(token)
+    const existingToken = await getTokenByToken(token, 'passwordReset')
 
     if (!existingToken) {
       throw new Error(
@@ -33,11 +32,10 @@ export default async function resetPassword(values: ResetPasswordSchema) {
       )
     }
 
-    const isTokenExpired =
-      existingToken.sentAt.getTime() < Date.now() - 1000 * 3600 * 24
+    const isTokenExpired = existingToken.expiresAt.getTime() < Date.now()
 
     if (isTokenExpired) {
-      await deleteToken(existingToken.token)
+      await deleteToken(existingToken.token, 'passwordReset')
       throw new Error(
         'Token has expired. Please use the button below to get a new verification email.',
       )
@@ -46,7 +44,7 @@ export default async function resetPassword(values: ResetPasswordSchema) {
     const user = await getUserByEmail(existingToken.email)
 
     if (!user) {
-      await deleteToken(existingToken.token)
+      await deleteToken(existingToken.token, 'passwordReset')
       throw new Error('User not found. You need to create an account first.')
     }
 
@@ -56,7 +54,7 @@ export default async function resetPassword(values: ResetPasswordSchema) {
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    await deleteToken(existingToken.token)
+    await deleteToken(existingToken.token, 'passwordReset')
     await db
       .update(users)
       .set({ password: hashedPassword })

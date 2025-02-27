@@ -15,10 +15,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { AlertBox, Loader } from '@/components/elements'
-import {
-  usernameSetupSchema,
-  type UsernameSetupSchema,
-} from '@/lib/validations'
+import { type UsernameSetup, usernameSetupSchema } from '@/lib/validations/auth'
 import { setupUsername } from '@/server/actions/auth'
 
 type UsernameSetupFormProps = {
@@ -31,7 +28,7 @@ export default function UsernameSetupForm({ email }: UsernameSetupFormProps) {
 
   const router = useRouter()
 
-  const form = useForm<UsernameSetupSchema>({
+  const form = useForm<UsernameSetup>({
     resolver: zodResolver(usernameSetupSchema),
     mode: 'onBlur',
     defaultValues: {
@@ -40,11 +37,13 @@ export default function UsernameSetupForm({ email }: UsernameSetupFormProps) {
     },
   })
 
-  const onSubmit = async (values: UsernameSetupSchema) => {
+  const onSubmit = async (values: UsernameSetup) => {
     setError('')
     setSuccess('')
 
     const response = await setupUsername(values)
+
+    form.reset()
 
     if (response.success) {
       setSuccess(response.message)

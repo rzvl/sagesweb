@@ -1,0 +1,1 @@
+-- ALTER TABLE "emailVerificationTokens" ALTER COLUMN "expiresAt" SET DEFAULT '2025-02-27 16:25:13.476';

@@ -1,8 +1,8 @@
 import { cache } from 'react'
 import { eq } from 'drizzle-orm'
 import { db } from '@/server/db'
-import { users } from '@/server/db/schema'
-import type { SignupSchema } from '@/lib/validations'
+import { users } from '@/server/db/schema/users'
+import type { Signup } from '@/lib/validations/auth'
 import 'server-only'
 
 const getUserByEmail = cache(async (email: string) => {
@@ -29,7 +29,7 @@ const getUserByUsername = cache(async (username: string) => {
   return user
 })
 
-async function addUser(user: SignupSchema) {
+async function addUser(user: Signup) {
   await db.insert(users).values(user)
 }
 

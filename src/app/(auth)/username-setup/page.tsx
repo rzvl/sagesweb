@@ -1,4 +1,3 @@
-import { Suspense } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import {
@@ -12,11 +11,7 @@ import { AlertBox } from '@/components/elements'
 export default async function Page() {
   const session = await auth()
 
-  if (!session?.user) {
-    return <NotLoggedInCard />
-  }
-
-  if (session.user.username) {
+  if (session?.user.username) {
     return <UserAlreadySetCard />
   }
 
@@ -48,9 +43,9 @@ export default async function Page() {
           <p className="text-sm leading-5 text-muted-foreground">
             Choose your username now and start participating!
           </p>
-          <Suspense>
-            <UsernameSetupForm email={session.user.email} />
-          </Suspense>
+          {session?.user.email && (
+            <UsernameSetupForm email={session?.user.email} />
+          )}
         </CardContent>
       </Card>
     </AuthPageContainer>
@@ -76,29 +71,6 @@ function UserAlreadySetCard() {
         <CardFooter>
           <Button variant="outline" className="w-full" asChild>
             <Link href="/">Go Home</Link>
-          </Button>
-        </CardFooter>
-      </Card>
-    </AuthPageContainer>
-  )
-}
-
-function NotLoggedInCard() {
-  return (
-    <AuthPageContainer showHeader>
-      <Card>
-        <CardHeader>
-          <h1 className="text-center text-xl font-bold">User Not Logged In</h1>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <AlertBox variant="destructive" message="User not logged in!" />
-          <p className="text-sm leading-5 text-muted-foreground">
-            Please log in to create your username.
-          </p>
-        </CardContent>
-        <CardFooter>
-          <Button variant="outline" className="w-full" asChild>
-            <Link href="/login">Log In</Link>
           </Button>
         </CardFooter>
       </Card>

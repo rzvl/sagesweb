@@ -11,8 +11,6 @@ import { SeparatorWithText } from '@/components/elements'
 import SignUpForm from './signup-form'
 import LogInForm from './login-form'
 import { OAuthButton } from '@/components/features/auth'
-import { auth } from '@/server/auth'
-import SignOutButton from './sign-out-button'
 
 type AuthCardProps = {
   type: 'signup' | 'login'
@@ -35,21 +33,6 @@ export default async function AuthCard({ type }: AuthCardProps) {
       footerLinkText: 'Sign up',
     },
   }[type]
-
-  const session = await auth()
-
-  if (session?.user) {
-    return (
-      <Card>
-        <CardContent className="flex h-60 flex-col items-center justify-center gap-4">
-          <p className="text-center">
-            You&apos;re already logged in as {session.user.email}
-          </p>
-          <SignOutButton />
-        </CardContent>
-      </Card>
-    )
-  }
 
   return (
     <Card>

@@ -13,8 +13,10 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { forgotPasswordSchema } from '@/lib/validations'
-import type { ForgotPasswordSchema } from '@/lib/validations'
+import {
+  type ForgotPassword,
+  forgotPasswordSchema,
+} from '@/lib/validations/auth'
 import { sendPasswordResetEmail } from '@/server/actions/auth'
 import type { TResponse } from '@/lib/types'
 import { AlertBox, Loader } from '@/components/elements'
@@ -23,14 +25,14 @@ export default function ForgotPasswordForm() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const form = useForm<ForgotPasswordSchema>({
+  const form = useForm<ForgotPassword>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: '',
     },
   })
 
-  const onSubmit = async (values: ForgotPasswordSchema) => {
+  const onSubmit = async (values: ForgotPassword) => {
     setError('')
     setSuccess('')
     const response: TResponse = await sendPasswordResetEmail(values)

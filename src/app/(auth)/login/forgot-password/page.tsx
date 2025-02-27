@@ -1,9 +1,7 @@
-// import { Suspense } from 'react'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import {
   AuthPageContainer,
   ForgotPasswordForm,
-  // ResendEmailVerificationButton,
 } from '@/components/features/auth'
 import Link from 'next/link'
 

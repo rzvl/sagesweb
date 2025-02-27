@@ -1,18 +1,45 @@
 'use server'
 
 import { signIn } from '@/server/auth'
-import type { LoginSchema } from '@/lib/validations'
+import { type Login } from '@/lib/validations/auth'
+import { DEFAULT_LOGIN_REDIRECT } from '@/routes'
+import { AuthError } from 'next-auth'
 
-async function loginWithEmail(values: LoginSchema) {
-  await signIn('credentials', { ...values, redirectTo: '/api/login' })
+async function loginWithEmail(values: Login) {
+  try {
+    await signIn('credentials', {
+      ...values,
+      redirectTo: DEFAULT_LOGIN_REDIRECT,
+    })
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return { error: 'Invalid credentials!' }
+        default:
+          return { error: error.cause?.err?.message || 'Something went wrong' }
+      }
+    }
+
+    throw error
+  }
 }
 
-async function loginWithGoogle() {
-  await signIn('google', { redirectTo: '/api/login' })
+async function loginWithOAuth(provider: 'google' | 'apple') {
+  try {
+    await signIn(provider, { redirectTo: DEFAULT_LOGIN_REDIRECT })
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return { error: 'Invalid credentials!' }
+        default:
+          return { error: error.cause?.err?.message || 'Something went wrong' }
+      }
+    }
+
+    throw error
+  }
 }
 
-async function loginWithApple() {
-  await signIn('apple', { redirectTo: '/api/login' })
-}
-
-export { loginWithEmail, loginWithGoogle, loginWithApple }
+export { loginWithEmail, loginWithOAuth }

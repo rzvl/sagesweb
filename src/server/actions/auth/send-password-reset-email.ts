@@ -1,20 +1,22 @@
 'use server'
 
-import { forgotPasswordSchema } from '@/lib/validations'
-import type { ForgotPasswordSchema } from '@/lib/validations'
+import { Resend } from 'resend'
+import {
+  type ForgotPassword,
+  forgotPasswordSchema,
+} from '@/lib/validations/auth'
 import { TResponse } from '@/lib/types'
 import {
   deleteToken,
   generateToken,
   getTokenByEmail,
 } from '@/server/data/token'
-import { Resend } from 'resend'
 import { BASE_URL } from '@/lib/constants'
 import ResetPasswordEmail from '@/components/email-templates/reset-password-email'
 import { getUserByEmail } from '@/server/data/user'
 
 export default async function sendPasswordResetEmail(
-  values: ForgotPasswordSchema,
+  values: ForgotPassword,
 ): Promise<TResponse> {
   try {
     const validatedFields = forgotPasswordSchema.safeParse(values)
@@ -42,7 +44,7 @@ export default async function sendPasswordResetEmail(
           'You can only request a reset password email every 5 minutes.',
         )
       }
-      await deleteToken(existingToken.token)
+      await deleteToken(existingToken.token, 'passwordReset')
     }
 
     const { token } = await generateToken(email, 'passwordReset')

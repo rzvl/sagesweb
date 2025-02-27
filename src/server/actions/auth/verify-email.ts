@@ -11,7 +11,7 @@ export default async function verifyEmail(token: string | null) {
       )
     }
 
-    const existingToken = await getTokenByToken(token)
+    const existingToken = await getTokenByToken(token, 'emailVerification')
 
     if (!existingToken) {
       throw new Error(
@@ -19,11 +19,10 @@ export default async function verifyEmail(token: string | null) {
       )
     }
 
-    const isTokenExpired =
-      existingToken.sentAt.getTime() < Date.now() - 1000 * 3600 * 24
+    const isTokenExpired = existingToken.expiresAt.getTime() < Date.now()
 
     if (isTokenExpired) {
-      await deleteToken(existingToken.token)
+      await deleteToken(existingToken.token, 'emailVerification')
       throw new Error(
         'Token has expired. Please use the button below to get a new verification email.',
       )
@@ -32,16 +31,16 @@ export default async function verifyEmail(token: string | null) {
     const user = await getUserByEmail(existingToken.email)
 
     if (!user) {
-      await deleteToken(existingToken.token)
+      await deleteToken(existingToken.token, 'emailVerification')
       throw new Error('User not found. You need to create an account first.')
     }
 
     if (user.emailVerified) {
-      await deleteToken(existingToken.token)
+      await deleteToken(existingToken.token, 'emailVerification')
       return { success: true, message: 'Email already verified.' }
     }
 
-    await deleteToken(existingToken.token)
+    await deleteToken(existingToken.token, 'emailVerification')
     await updateUserVerification(user.id)
 
     return { success: true, message: 'Email verified successfully.' }

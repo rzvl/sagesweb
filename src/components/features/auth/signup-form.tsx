@@ -14,8 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { signupSchema } from '@/lib/validations'
-import type { SignupSchema } from '@/lib/validations'
+import { type Signup, signupSchema } from '@/lib/validations/auth'
 import { signup } from '@/server/actions/auth'
 import { AlertBox, Loader } from '@/components/elements'
 import PasswordInput from './password-input'
@@ -25,7 +24,7 @@ export default function SignUpForm() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const form = useForm<SignupSchema>({
+  const form = useForm<Signup>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       email: '',
@@ -33,7 +32,7 @@ export default function SignUpForm() {
     },
   })
 
-  const onSubmit = async (values: SignupSchema) => {
+  const onSubmit = async (values: Signup) => {
     console.log('signup form submit')
     setError('')
     setSuccess('')

@@ -1,4 +1,4 @@
 import { drizzle } from 'drizzle-orm/neon-serverless'
-import * as schemas from './schema'
+import * as users from './schema/users'
 
-export const db = drizzle(process.env.DATABASE_URL!, { schema: { ...schemas } })
+export const db = drizzle(process.env.DATABASE_URL!, { schema: { ...users } })

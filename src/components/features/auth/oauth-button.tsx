@@ -1,10 +1,10 @@
 'use client'
 
-import { useTransition } from 'react'
+import { useState } from 'react'
 import { AppleIcon, GoogleIcon } from '@/components/icons'
 import { Button } from '@/components/ui/button'
-import { loginWithApple, loginWithGoogle } from '@/server/actions/auth'
-import { Loader } from '@/components/elements'
+import { loginWithOAuth } from '@/server/actions/auth'
+import { AlertBox, Loader } from '@/components/elements'
 
 type OAuthButtonProps = {
   type: 'apple' | 'google'
@@ -13,34 +13,48 @@ type OAuthButtonProps = {
 export default function OAuthButton({ type }: OAuthButtonProps) {
   const data = {
     apple: {
-      icon: <AppleIcon />,
+      icon: AppleIcon,
       text: 'Continue with Apple',
-      action: loginWithApple,
     },
     google: {
-      icon: <GoogleIcon />,
+      icon: GoogleIcon,
       text: 'Continue with Google',
-      action: loginWithGoogle,
     },
   }[type]
 
-  const [isPending, startTransition] = useTransition()
+  const [isPending, setIsPending] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleClick = async () => {
+    setIsPending(true)
+
+    const response = await loginWithOAuth(type)
+
+    if (response?.error) {
+      setError(response.error)
+    }
+
+    setIsPending(false)
+  }
 
   return (
-    <Button
-      variant="outline"
-      className="w-full"
-      type="button"
-      onClick={() => startTransition(async () => await data.action())}
-      disabled={isPending}
-    >
-      {isPending ? (
-        <Loader />
-      ) : (
-        <span className="flex items-center gap-2">
-          {data.icon} {data.text}
-        </span>
-      )}
-    </Button>
+    <>
+      {error && <AlertBox variant="destructive" message={error} />}
+      <Button
+        variant="outline"
+        className="w-full"
+        type="button"
+        onClick={handleClick}
+        disabled={isPending}
+      >
+        {isPending ? (
+          <Loader />
+        ) : (
+          <span className="flex items-center gap-2">
+            <data.icon /> {data.text}
+          </span>
+        )}
+      </Button>
+    </>
   )
 }

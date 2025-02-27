@@ -24,7 +24,7 @@ export default async function sendVerificationEmail(
           'You can only request a verification email every 5 minutes.',
         )
       }
-      await deleteToken(existingToken.token)
+      await deleteToken(existingToken.token, 'emailVerification')
     }
 
     const { token } = await generateToken(email, 'emailVerification')
