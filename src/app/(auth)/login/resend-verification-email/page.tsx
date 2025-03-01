@@ -3,7 +3,7 @@ import {
   VerifyEmailMessage,
 } from '@/components/features/auth'
 
-export default function Page() {
+export default function ResendVerificationEmailPage() {
   return (
     <AuthPageContainer showHeader>
       <VerifyEmailMessage

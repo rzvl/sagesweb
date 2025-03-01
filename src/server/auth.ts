@@ -1,13 +1,12 @@
+import { eq } from 'drizzle-orm'
 import NextAuth, { NextAuthConfig } from 'next-auth'
 import Google from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
-import bcrypt from 'bcryptjs'
 import { DrizzleAdapter } from '@auth/drizzle-adapter'
 import { db } from '@/server/db'
 import { loginSchema } from '@/lib/validations/auth'
-import { emailNotVerifiedMessage } from '@/lib/constants'
-import { eq } from 'drizzle-orm'
-import { users } from './db/schema/users'
+import { users } from '@/server/db/schema/users'
+import { authorizeCredentials } from '@/server/actions/auth/login'
 
 const config = {
   adapter: DrizzleAdapter(db),
@@ -22,10 +21,6 @@ const config = {
   providers: [
     Google,
     Credentials({
-      credentials: {
-        email: {},
-        password: {},
-      },
       async authorize(credentials) {
         const validatedFields = loginSchema.safeParse(credentials)
 
@@ -33,30 +28,7 @@ const config = {
           throw new Error('Invalid credentials!')
         }
 
-        const { email, password } = validatedFields.data
-
-        const user = await db.query.users.findFirst({
-          where: eq(users.email, email),
-        })
-
-        if (!user) {
-          throw new Error('User not found! Please sign up first.')
-        }
-        if (!user.emailVerified) {
-          throw new Error(emailNotVerifiedMessage)
-        }
-        if (!user.password) {
-          throw new Error(
-            'It looks like you signed up using Google or Apple. Please log in with your OAuth provider instead, or use a different email and password.',
-          )
-        }
-
-        const passwordMatch = await bcrypt.compare(password, user.password)
-
-        if (!passwordMatch) {
-          throw new Error('Invalid email or password!')
-        }
-
+        const user = await authorizeCredentials(validatedFields.data)
         return user
       },
     }),

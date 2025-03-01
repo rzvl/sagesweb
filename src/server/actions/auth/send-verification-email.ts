@@ -8,11 +8,10 @@ import {
 } from '@/server/data/token'
 import { TResponse } from '@/lib/types'
 import VerificationEmail from '@/components/email-templates/verification-email'
-import { BASE_URL } from '@/lib/constants'
+import { BASE_URL, EAMIL_IS_VERIFIED_MESSAGE } from '@/lib/constants'
+import { getUserByEmail } from '@/server/data/user'
 
-export default async function sendVerificationEmail(
-  email: string,
-): Promise<TResponse> {
+async function sendVerificationEmail(email: string): Promise<TResponse> {
   try {
     const existingToken = await getTokenByEmail(email, 'emailVerification')
     if (existingToken) {
@@ -48,3 +47,26 @@ export default async function sendVerificationEmail(
     }
   }
 }
+
+async function resendVerificationEmail(email: string): Promise<TResponse> {
+  try {
+    const existingUser = await getUserByEmail(email)
+    if (!existingUser) {
+      throw new Error('User not found')
+    }
+
+    if (existingUser.emailVerified) {
+      return { success: true, message: EAMIL_IS_VERIFIED_MESSAGE }
+    }
+
+    return sendVerificationEmail(email)
+  } catch (error) {
+    if (error instanceof Error) {
+      return { success: false, message: (error as Error).message }
+    } else {
+      return { success: false, message: 'Something went wrong' }
+    }
+  }
+}
+
+export { sendVerificationEmail, resendVerificationEmail }

@@ -85,10 +85,12 @@ const emailVerificationTokens = pgTable(
       mode: 'date',
     })
       .notNull()
-      .default(sql`now()`),
+      .default(sql`NOW()`),
     expiresAt: timestamp('expiresAt', {
       mode: 'date',
-    }).notNull(),
+    })
+      .notNull()
+      .default(sql`NOW() + INTERVAL '24 hours'`),
     email: text('email').notNull(),
   },
   (token) => ({
@@ -109,10 +111,12 @@ const passwordResetTokens = pgTable(
       mode: 'date',
     })
       .notNull()
-      .default(sql`now()`),
+      .default(sql`NOW()`),
     expiresAt: timestamp('expiresAt', {
       mode: 'date',
-    }).notNull(),
+    })
+      .notNull()
+      .default(sql`NOW() + INTERVAL '30 minutes'`),
     email: text('email').notNull(),
   },
   (token) => ({
@@ -133,10 +137,12 @@ const twoFactorAuthTokens = pgTable(
       mode: 'date',
     })
       .notNull()
-      .default(sql`now()`),
+      .default(sql`NOW()`),
     expiresAt: timestamp('expiresAt', {
       mode: 'date',
-    }).notNull(),
+    })
+      .notNull()
+      .default(sql`NOW() + INTERVAL '5 minutes'`),
     email: text('email').notNull(),
   },
   (token) => ({

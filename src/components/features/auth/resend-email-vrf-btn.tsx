@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { resendVerificationEmail } from '@/server/actions/auth'
 import { AlertBox, Loader } from '@/components/elements'
 import { addMinutes } from '@/lib/utils'
-import { emailIsVerifiedMessage } from '@/lib/constants'
+import { EAMIL_IS_VERIFIED_MESSAGE } from '@/lib/constants'
 import { useSearchParams } from 'next/navigation'
 
 export default function ResendEmailVerificationButton({
@@ -42,7 +42,7 @@ export default function ResendEmailVerificationButton({
     const res = await resendVerificationEmail(email)
     if (res.success) {
       setSuccess(res.message)
-      if (res.message === emailIsVerifiedMessage) {
+      if (res.message === EAMIL_IS_VERIFIED_MESSAGE) {
         setShowLoginBtn(true)
         return
       }

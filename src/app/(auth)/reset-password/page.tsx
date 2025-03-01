@@ -11,7 +11,7 @@ import {
 } from '@/components/features/auth'
 import { AlertBox } from '@/components/elements'
 
-export default function Page() {
+export default function ResetPasswordPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 

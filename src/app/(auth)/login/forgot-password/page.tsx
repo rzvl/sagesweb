@@ -5,7 +5,7 @@ import {
 } from '@/components/features/auth'
 import Link from 'next/link'
 
-export default function Page() {
+export default function ForgotPasswordPage() {
   return (
     <AuthPageContainer showHeader>
       <Card>

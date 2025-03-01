@@ -3,9 +3,16 @@ const BASE_URL =
     ? 'https://sagesweb.com'
     : 'http://localhost:3000'
 
-const emailIsVerifiedMessage =
+const EAMIL_IS_VERIFIED_MESSAGE =
   'Your email is already verified! Please log in to continue.'
 
-const emailNotVerifiedMessage = 'Email not verified!'
+const EMAIL_NOT_VERIFIED_MESSAGE = 'Email not verified!'
 
-export { BASE_URL, emailIsVerifiedMessage, emailNotVerifiedMessage }
+const TWO_FACTOR_EMAIL_SENT_MESSAGE = '2FA email sent!'
+
+export {
+  BASE_URL,
+  EAMIL_IS_VERIFIED_MESSAGE,
+  EMAIL_NOT_VERIFIED_MESSAGE,
+  TWO_FACTOR_EMAIL_SENT_MESSAGE,
+}

@@ -13,7 +13,7 @@ import {
   ResendEmailVerificationButton,
 } from '@/components/features/auth'
 
-export default function Page() {
+export default function VerifyEmailPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [isLoading, setIsLoading] = useState(true)

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { auth } from '@/server/auth'
 import { AlertBox } from '@/components/elements'
 
-export default async function Page() {
+export default async function UsernameSetupPage() {
   const session = await auth()
 
   if (session?.user.username) {

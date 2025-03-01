@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { AuthPageContainer } from '@/components/features/auth'
 
-export default function Page() {
+export default function AuthErrorPage() {
   return (
     <AuthPageContainer showHeader>
       <Card>

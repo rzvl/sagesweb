@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 import { type Signup, signupSchema } from '@/lib/validations/auth'
 import { getUserByEmail } from '@/server/data/user'
 import { TResponse } from '@/lib/types'
-import sendVerificationEmail from './send-verification-email'
+import { sendVerificationEmail } from './send-verification-email'
 import { db } from '@/server/db'
 import { users } from '@/server/db/schema/users'
 

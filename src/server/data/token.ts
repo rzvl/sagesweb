@@ -3,103 +3,71 @@ import { eq } from 'drizzle-orm'
 import { createId } from '@paralleldrive/cuid2'
 import { db } from '@/server/db'
 import {
-  type SelectTokens,
   emailVerificationTokens,
   passwordResetTokens,
   twoFactorAuthTokens,
 } from '@/server/db/schema/users'
 import 'server-only'
 
+const tables = {
+  emailVerification: emailVerificationTokens,
+  passwordReset: passwordResetTokens,
+  twoFactorAuth: twoFactorAuthTokens,
+}
+
 type TokenType = 'emailVerification' | 'passwordReset' | 'twoFactorAuth'
 
 async function generateToken(email: string, tokenType: TokenType) {
-  const data = {
-    emailVerification: {
-      table: emailVerificationTokens,
-      expiresAt: new Date(new Date().getTime() + 1000 * 60 * 60 * 24), // 24 hours
-    },
-    passwordReset: {
-      table: passwordResetTokens,
-      expiresAt: new Date(new Date().getTime() + 1000 * 60 * 30), // 30 minutes
-    },
-    twoFactorAuth: {
-      table: twoFactorAuthTokens,
-      expiresAt: new Date(new Date().getTime() + 1000 * 60 * 5), // 5 minutes
-    },
-  }[tokenType]
-
-  const token = createId()
+  const tokenTable = tables[tokenType]
+  const token =
+    tokenType === 'twoFactorAuth'
+      ? (await generateRandomSixDigitNumber()).toString()
+      : createId()
 
   const addedToken = await db
-    .insert(data.table)
-    .values({
-      token,
-      email,
-      expiresAt: data.expiresAt,
-    })
+    .insert(tokenTable)
+    .values({ token, email })
     .returning()
 
   return addedToken[0]
 }
 
 const getTokenByEmail = cache(async (email: string, tokenType: TokenType) => {
-  let token: SelectTokens | undefined
+  const tokenTable = tables[tokenType]
+  const token = await db
+    .select()
+    .from(tokenTable)
+    .where(eq(tokenTable.email, email))
+    .limit(1)
 
-  if (tokenType === 'emailVerification') {
-    token = await db.query.emailVerificationTokens.findFirst({
-      where: eq(emailVerificationTokens.email, email),
-    })
-  } else if (tokenType === 'passwordReset') {
-    token = await db.query.passwordResetTokens.findFirst({
-      where: eq(passwordResetTokens.email, email),
-    })
-  } else if (tokenType === 'twoFactorAuth') {
-    token = await db.query.twoFactorAuthTokens.findFirst({
-      where: eq(twoFactorAuthTokens.email, email),
-    })
-  }
-
-  if (!token) return null
-  return token
+  if (!token[0]) return null
+  return token[0]
 })
 
 const getTokenByToken = cache(async (token: string, tokenType: TokenType) => {
-  let queriedToken: SelectTokens | undefined
+  const tokenTable = tables[tokenType]
+  const query = await db
+    .select()
+    .from(tokenTable)
+    .where(eq(tokenTable.token, token))
+    .limit(1)
 
-  if (tokenType === 'emailVerification') {
-    queriedToken = await db.query.emailVerificationTokens.findFirst({
-      where: eq(emailVerificationTokens.token, token),
-    })
-  } else if (tokenType === 'passwordReset') {
-    queriedToken = await db.query.passwordResetTokens.findFirst({
-      where: eq(passwordResetTokens.token, token),
-    })
-  } else if (tokenType === 'twoFactorAuth') {
-    queriedToken = await db.query.twoFactorAuthTokens.findFirst({
-      where: eq(twoFactorAuthTokens.token, token),
-    })
-  }
-
-  if (!queriedToken) {
+  if (!query[0]) {
     return null
   }
-  return queriedToken
+  return query[0]
 })
 
 async function deleteToken(token: string, tokenType: TokenType) {
-  if (tokenType === 'emailVerification') {
-    await db
-      .delete(emailVerificationTokens)
-      .where(eq(emailVerificationTokens.token, token))
-  } else if (tokenType === 'passwordReset') {
-    await db
-      .delete(passwordResetTokens)
-      .where(eq(passwordResetTokens.token, token))
-  } else if (tokenType === 'twoFactorAuth') {
-    await db
-      .delete(twoFactorAuthTokens)
-      .where(eq(twoFactorAuthTokens.token, token))
-  }
+  const tokenTable = tables[tokenType]
+
+  await db.delete(tokenTable).where(eq(tokenTable.token, token))
+}
+
+async function generateRandomSixDigitNumber() {
+  const randomBuffer = new Uint32Array(1)
+  crypto.getRandomValues(randomBuffer)
+  return (randomBuffer[0] % 900000) + 100000
 }
 
 export { deleteToken, generateToken, getTokenByEmail, getTokenByToken }

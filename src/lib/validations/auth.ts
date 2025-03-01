@@ -9,6 +9,7 @@ const loginSchema = z.object({
     .email({ message: 'Invalid email address' })
     .transform((val) => val.toLowerCase()),
   password: z.string().trim().min(1, { message: 'Password is required' }),
+  code: z.string().optional(),
 })
 
 const signupSchema = z.object({

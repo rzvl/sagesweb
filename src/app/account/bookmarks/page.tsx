@@ -1,6 +1,6 @@
 import { BookmarkX } from 'lucide-react'
 
-export default function Page() {
+export default function BookmarksPage() {
   return (
     <section className="flex w-full justify-center py-10">
       <NoBookmarks />

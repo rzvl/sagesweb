@@ -3,7 +3,7 @@ import { ChangePasswordForm } from '@/components/features/account'
 import { auth } from '@/server/auth'
 import Link from 'next/link'
 
-export default async function Page() {
+export default async function SettingsPage() {
   const session = await auth()
 
   const handleToggle = async (isChecked: boolean) => {
