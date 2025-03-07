@@ -5,13 +5,13 @@ import {
   UsernameSetupForm,
 } from '@/components/features/auth'
 import { Button } from '@/components/ui/button'
-import { auth } from '@/server/auth'
 import { AlertBox } from '@/components/elements'
+import { getCurrentUser } from '@/server/data/user'
 
 export default async function UsernameSetupPage() {
-  const session = await auth()
+  const user = getCurrentUser()
 
-  if (session?.user.username) {
+  if (user?.username) {
     return <UserAlreadySetCard />
   }
 
@@ -43,9 +43,7 @@ export default async function UsernameSetupPage() {
           <p className="text-sm leading-5 text-muted-foreground">
             Choose your username now and start participating!
           </p>
-          {session?.user.email && (
-            <UsernameSetupForm email={session?.user.email} />
-          )}
+          {user?.email && <UsernameSetupForm email={user.email} />}
         </CardContent>
       </Card>
     </AuthPageContainer>

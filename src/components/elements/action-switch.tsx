@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { TResponse } from '@/lib/types'
-import { useToast } from '@/hooks/use-toast'
 
 interface ActionSwitchProps {
   label: string
@@ -19,21 +19,14 @@ export default function ActionSwitch({
 }: ActionSwitchProps) {
   const [isChecked, setIsChecked] = useState(false)
 
-  const { toast } = useToast()
-
   const handleToggle = async (checked: boolean) => {
     setIsChecked(checked)
     const response = await onToggleAction(checked)
 
     if (response.success) {
-      toast({
-        description: response.message,
-      })
+      toast.success(response.message)
     } else {
-      toast({
-        variant: 'destructive',
-        description: response.message,
-      })
+      toast.error(response.message)
     }
   }
 

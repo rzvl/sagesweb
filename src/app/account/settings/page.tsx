@@ -1,10 +1,10 @@
+import Link from 'next/link'
 import { ActionSwitch } from '@/components/elements'
 import { ChangePasswordForm } from '@/components/features/account'
-import { auth } from '@/server/auth'
-import Link from 'next/link'
+import { getCurrentUser } from '@/server/data/user'
 
 export default async function SettingsPage() {
-  const session = await auth()
+  const user = getCurrentUser()
 
   const handleToggle = async (isChecked: boolean) => {
     'use server'
@@ -19,8 +19,8 @@ export default async function SettingsPage() {
       <ul className="w-full max-w-lg space-y-6">
         <li className="flex gap-4 rounded-lg border p-3 text-sm text-muted-foreground shadow-sm">
           <h3 className="font-semibold text-foreground">User Name:</h3>
-          {session?.user.username ? (
-            `@${session?.user.username}`
+          {user?.username ? (
+            `@${user?.username}`
           ) : (
             <Link href="/username-setup">Setup Now</Link>
           )}

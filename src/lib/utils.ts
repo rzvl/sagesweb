@@ -5,9 +5,17 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// create a function which creates a new date, adds 5 minutes and returns it
 function addMinutes(date: Date, minutes: number) {
   return new Date(date.getTime() + minutes * 60000)
 }
 
-export { cn, addMinutes }
+function replaceEmptyWithNull(obj: Record<string, unknown>) {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [
+      key,
+      value === '' ? null : value,
+    ]),
+  )
+}
+
+export { cn, addMinutes, replaceEmptyWithNull }

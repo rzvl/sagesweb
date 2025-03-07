@@ -5,7 +5,7 @@ import { type UsernameSetup, usernameSetupSchema } from '@/lib/validations/auth'
 import {
   getUserByEmail,
   getUserByUsername,
-  updateUsername,
+  updateUser,
 } from '@/server/data/user'
 
 async function setupUsername(values: UsernameSetup): Promise<TResponse> {
@@ -36,7 +36,7 @@ async function setupUsername(values: UsernameSetup): Promise<TResponse> {
       throw new Error('Username already set')
     }
 
-    await updateUsername(existingUser.id, username)
+    await updateUser(existingUser.id, { username })
 
     return { success: true, message: 'Username set successfully' }
   } catch (error) {

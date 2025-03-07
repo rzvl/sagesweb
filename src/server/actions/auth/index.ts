@@ -6,6 +6,7 @@ import { resendVerificationEmail } from './send-verification-email'
 import sendPasswordResetEmail from './send-password-reset-email'
 import resetPassword from './reset-password'
 import { checkUsernameAvailability, setupUsername } from './setup-username'
+import updateProfileSettings from './update-profile-settings'
 
 export {
   loginWithEmail,
@@ -18,4 +19,5 @@ export {
   sendPasswordResetEmail,
   setupUsername,
   checkUsernameAvailability,
+  updateProfileSettings,
 }

@@ -1,14 +1,12 @@
 import { z } from 'zod'
 
 const editProfileSchema = z.object({
-  name: z.optional(
-    z
-      .string()
-      .trim()
-      .min(1, { message: 'Name is required' })
-      .max(150, { message: 'Name must be at most 150 characters' }),
-  ),
-  image: z.optional(z.string().trim().min(1, { message: 'Image is required' })),
+  name: z
+    .string()
+    .trim()
+    .max(150, { message: 'Name must be at most 150 characters' })
+    .optional(),
+  image: z.string().trim().optional(),
 })
 
 const changePasswordSchema = z.object({

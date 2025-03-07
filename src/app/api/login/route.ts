@@ -1,16 +1,18 @@
-import { auth } from '@/server/auth'
 import { redirect } from 'next/navigation'
+import { getCurrentUser } from '@/server/data/user'
 
 export async function GET() {
-  const session = await auth()
+  const user = getCurrentUser()
 
-  if (!session || !session.user) {
+  console.log('current user', user)
+
+  if (!user) {
     return new Response('Unauthorized', { status: 401 })
   }
 
-  if (!session.user.username) {
+  if (!user.username) {
     redirect('/username-setup')
-  } else if (!session.user.name) {
+  } else if (!user.name) {
     redirect('/account/profile')
   } else {
     redirect('/')

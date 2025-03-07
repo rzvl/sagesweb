@@ -1,10 +1,8 @@
 import Link from 'next/link'
-import type { Session } from 'next-auth'
-import { Bookmark, MoreHorizontal, Settings, UserRound } from 'lucide-react'
+import { Bookmark, Settings, UserRound, UserRoundCheck } from 'lucide-react'
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -13,9 +11,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { Logo, UserAvatar } from '@/components/elements'
+import { Logo } from '@/components/elements'
 import AccountSidebarButton from './account-sidebar-button'
-import SidebarBottomMenu from './sidebar-bottom-menu'
+import AccountSidebarFooter from './account-sidebar-footer'
+import { currentUser } from '@/lib/auth'
 
 const items = [
   {
@@ -35,11 +34,10 @@ const items = [
   },
 ]
 
-type AccountSidebarProps = {
-  session: Session | null
-}
+export default async function AccountSidebar() {
+  const user = currentUser()
+  const role = user.role
 
-export default function AccountSidebar({ session }: AccountSidebarProps) {
   return (
     <Sidebar>
       <AccountSidebarHeader />
@@ -58,11 +56,21 @@ export default function AccountSidebar({ session }: AccountSidebarProps) {
                   </AccountSidebarButton>
                 </SidebarMenuItem>
               ))}
+              {role === 'admin' && (
+                <SidebarMenuItem key="admin">
+                  <AccountSidebarButton url="/account/admin">
+                    <Link href="/account/admin">
+                      <UserRoundCheck />
+                      <span>Admin</span>
+                    </Link>
+                  </AccountSidebarButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <AccountSidebarFooter session={session} />
+      <AccountSidebarFooter />
     </Sidebar>
   )
 }
@@ -80,35 +88,5 @@ function AccountSidebarHeader() {
         </SidebarMenuItem>
       </SidebarMenu>
     </SidebarHeader>
-  )
-}
-
-function AccountSidebarFooter({ session }: AccountSidebarProps) {
-  return (
-    <SidebarFooter>
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarBottomMenu>
-            <SidebarMenuButton className="h-12">
-              <div className="flex w-full items-center gap-4">
-                <UserAvatar
-                  src={session?.user.image || undefined}
-                  className="h-9 w-9"
-                />
-                <div className="flex flex-col items-start">
-                  <span className="text-xs font-semibold">
-                    {session?.user.name || session?.user.role}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {`@${session?.user.username}` || session?.user.email}
-                  </span>
-                </div>
-                <MoreHorizontal className="ml-auto" />
-              </div>
-            </SidebarMenuButton>
-          </SidebarBottomMenu>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    </SidebarFooter>
   )
 }

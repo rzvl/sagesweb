@@ -2,7 +2,7 @@
 
 import { eq } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
-import { getUserByEmail, updateUserVerification } from '@/server/data/user'
+import { getUserByEmail, updateUser } from '@/server/data/user'
 import { type ResetPassword, resetPasswordSchema } from '@/lib/validations/auth'
 import { deleteToken, getTokenByToken } from '@/server/data/token'
 import { db } from '@/server/db'
@@ -49,7 +49,7 @@ export default async function resetPassword(values: ResetPassword) {
     }
 
     if (!user.emailVerified) {
-      await updateUserVerification(user.id)
+      await updateUser(user.id, { emailVerified: new Date() })
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)

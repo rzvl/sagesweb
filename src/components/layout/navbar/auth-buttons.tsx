@@ -1,11 +1,10 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { auth } from '@/server/auth'
 import AvatarDropdown from './avatar-dropdown'
+import { getCurrentUser } from '@/server/data/user'
 
 export default async function AuthButtons() {
-  const session = await auth()
-  const user = session?.user ?? null
+  const user = getCurrentUser()
 
   if (user) {
     return <AvatarDropdown user={user} />

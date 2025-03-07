@@ -33,7 +33,6 @@ export default function SignUpForm() {
   })
 
   const onSubmit = async (values: Signup) => {
-    console.log('signup form submit')
     setError('')
     setSuccess('')
     const response = await signup(values)

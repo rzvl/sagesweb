@@ -1,6 +1,6 @@
 'use server'
 
-import { getUserByEmail, updateUserVerification } from '@/server/data/user'
+import { getUserByEmail, updateUser } from '@/server/data/user'
 import { deleteToken, getTokenByToken } from '@/server/data/token'
 
 export default async function verifyEmail(token: string | null) {
@@ -41,7 +41,7 @@ export default async function verifyEmail(token: string | null) {
     }
 
     await deleteToken(existingToken.token, 'emailVerification')
-    await updateUserVerification(user.id)
+    await updateUser(user.id, { emailVerified: new Date() })
 
     return { success: true, message: 'Email verified successfully.' }
   } catch (error) {

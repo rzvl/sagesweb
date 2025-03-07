@@ -1,7 +1,9 @@
 'use client'
 
+import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -13,21 +15,48 @@ import {
   FormMessage,
 } from '@/components/ui/form'
 import { type EditProfile, editProfileSchema } from '@/lib/validations/account'
-import { Loader, UserAvatar } from '@/components/elements'
-import type { Session } from 'next-auth'
+import { AlertBox, Loader, UserAvatar } from '@/components/elements'
+import { updateProfileSettings } from '@/server/actions/auth'
+import { useSession } from 'next-auth/react'
+import { getCurrentUser } from '@/server/data/user'
 
-export default function ProfileForm({ session }: { session: Session | null }) {
+export default function ProfileForm() {
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  const { update } = useSession()
+
+  const user = getCurrentUser()
+
+  console.log('user', user)
+
   const form = useForm<EditProfile>({
     resolver: zodResolver(editProfileSchema),
     defaultValues: {
-      name: '',
-      image: '',
+      image: user?.image || '',
+      name: user?.name || '',
     },
   })
 
   const onSubmit = async (values: EditProfile) => {
-    // TODO
-    console.log(values)
+    setError('')
+    setSuccess('')
+
+    if (!user?.id) {
+      return
+    }
+
+    const response = await updateProfileSettings(user?.id, values)
+
+    update({ ...values })
+
+    if (response.success) {
+      setSuccess(response.message)
+      toast.success(response.message)
+    } else {
+      setError(response.message)
+      toast.error(response.message)
+    }
   }
 
   return (
@@ -44,9 +73,7 @@ export default function ProfileForm({ session }: { session: Session | null }) {
               <div className="mb-4 flex flex-col items-center gap-4">
                 <FormLabel className="font-semibold">Profile Image</FormLabel>
                 <UserAvatar
-                  src={
-                    form.getValues('image') || session?.user.image || undefined
-                  }
+                  src={form.getValues('image') || user?.image || undefined}
                   className="h-28 w-28"
                 />
               </div>
@@ -79,7 +106,10 @@ export default function ProfileForm({ session }: { session: Session | null }) {
             </FormItem>
           )}
         />
-        {/* {error && <AlertBox variant="destructive" message={error} />} */}
+
+        {error && <AlertBox variant="destructive" message={error} />}
+        {success && <AlertBox variant="success" message={success} />}
+
         <Button
           type="submit"
           disabled={form.formState.isSubmitting}

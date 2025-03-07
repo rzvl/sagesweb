@@ -1,8 +1,9 @@
 import { cache } from 'react'
 import { eq } from 'drizzle-orm'
 import { db } from '@/server/db'
-import { users } from '@/server/db/schema/users'
+import { InsertUser, users } from '@/server/db/schema/users'
 import type { Signup } from '@/lib/validations/auth'
+import { replaceEmptyWithNull } from '@/lib/utils'
 import 'server-only'
 
 const getUserByEmail = cache(async (email: string) => {
@@ -33,23 +34,22 @@ async function addUser(user: Signup) {
   await db.insert(users).values(user)
 }
 
-async function updateUsername(id: string, username: string) {
-  await db.update(users).set({ username }).where(eq(users.id, id))
-}
-
-async function updateUserVerification(id: string) {
+async function updateUser(id: string, values: Partial<InsertUser>) {
   await db
     .update(users)
-    .set({ emailVerified: new Date() })
+    .set(replaceEmptyWithNull(values))
     .where(eq(users.id, id))
 }
 
-const preloadUserByEmail = (email: string) => {
-  void getUserByEmail(email)
-}
-
-const preloadUserById = (id: string) => {
-  void getUserById(id)
+function getCurrentUser() {
+  return {
+    id: '1',
+    username: 'reza',
+    role: 'admin',
+    image: 'https://avatars.githubusercontent.com/u/10198792?v=4',
+    email: 'reza.shabani@gmail.com',
+    name: 'Reza Shabani',
+  }
 }
 
 export {
@@ -57,8 +57,6 @@ export {
   getUserByEmail,
   getUserById,
   getUserByUsername,
-  preloadUserByEmail,
-  preloadUserById,
-  updateUsername,
-  updateUserVerification,
+  updateUser,
+  getCurrentUser,
 }
