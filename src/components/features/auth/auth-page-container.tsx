@@ -7,7 +7,7 @@ type AuthPageContainerProps = {
   showFooter?: boolean
 }
 
-export default function AuthPageContainer({
+export function AuthPageContainer({
   children,
   showHeader,
   showFooter,

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Form,
@@ -15,20 +16,20 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { AlertBox, Loader } from '@/components/elements'
-import { type UsernameSetup, usernameSetupSchema } from '@/lib/validations/auth'
+import { usernameSetupSchema } from '@/lib/validations/auth'
 import { setupUsername } from '@/server/actions/auth'
 
 type UsernameSetupFormProps = {
   email: string
 }
 
-export default function UsernameSetupForm({ email }: UsernameSetupFormProps) {
+export function UsernameSetupForm({ email }: UsernameSetupFormProps) {
   const [error, setError] = useState('')
   const [succes, setSuccess] = useState('')
 
   const router = useRouter()
 
-  const form = useForm<UsernameSetup>({
+  const form = useForm<z.infer<typeof usernameSetupSchema>>({
     resolver: zodResolver(usernameSetupSchema),
     mode: 'onBlur',
     defaultValues: {
@@ -37,7 +38,7 @@ export default function UsernameSetupForm({ email }: UsernameSetupFormProps) {
     },
   })
 
-  const onSubmit = async (values: UsernameSetup) => {
+  const onSubmit = async (values: z.infer<typeof usernameSetupSchema>) => {
     setError('')
     setSuccess('')
 

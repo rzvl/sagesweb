@@ -1,0 +1,1 @@
+CREATE TYPE "public"."oauth_providers" AS ENUM('google', 'apple');

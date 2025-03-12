@@ -1,34 +1,37 @@
 'use server'
 
 import { Resend } from 'resend'
+import { env } from '@/env/server'
 import {
   deleteToken,
   generateToken,
   getTokenByEmail,
 } from '@/server/data/token'
-import { TResponse } from '@/lib/types'
-import VerificationEmail from '@/components/email-templates/verification-email'
+import { VerificationEmail } from '@/components/email-templates/verification-email'
 import { BASE_URL, EAMIL_IS_VERIFIED_MESSAGE } from '@/lib/constants'
 import { getUserByEmail } from '@/server/data/user'
+import { TResponse } from '@/lib/types'
 
-async function sendVerificationEmail(email: string): Promise<TResponse> {
+export async function sendVerificationEmail(email: string): Promise<TResponse> {
   try {
     const existingToken = await getTokenByEmail(email, 'emailVerification')
+
     if (existingToken) {
       const isFiveMinutesPast =
-        Date.now() > 5 * 60000 + existingToken.sentAt.getTime()
+        Date.now() > 5 * 60000 + existingToken.createdAt.getTime()
 
       if (!isFiveMinutesPast) {
-        throw new Error(
-          'You can only request a verification email every 5 minutes.',
-        )
+        return {
+          success: false,
+          message: 'You can only request a verification email every 5 minutes.',
+        }
       }
       await deleteToken(existingToken.token, 'emailVerification')
     }
 
     const { token } = await generateToken(email, 'emailVerification')
 
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const resend = new Resend(env.RESEND_API_KEY)
     const url = `${BASE_URL}/verify-email?token=${token}&email=${email}`
 
     await resend.emails.send({
@@ -41,18 +44,20 @@ async function sendVerificationEmail(email: string): Promise<TResponse> {
     return { success: true, message: 'Verification email sent!' }
   } catch (error) {
     if (error instanceof Error) {
-      return { success: false, message: (error as Error).message }
+      return { success: false, message: error.message }
     } else {
       return { success: false, message: 'Something went wrong' }
     }
   }
 }
 
-async function resendVerificationEmail(email: string): Promise<TResponse> {
+export async function resendVerificationEmail(
+  email: string,
+): Promise<TResponse> {
   try {
     const existingUser = await getUserByEmail(email)
     if (!existingUser) {
-      throw new Error('User not found')
+      return { success: false, message: 'User not found!' }
     }
 
     if (existingUser.emailVerified) {
@@ -62,11 +67,9 @@ async function resendVerificationEmail(email: string): Promise<TResponse> {
     return sendVerificationEmail(email)
   } catch (error) {
     if (error instanceof Error) {
-      return { success: false, message: (error as Error).message }
+      return { success: false, message: error.message }
     } else {
       return { success: false, message: 'Something went wrong' }
     }
   }
 }
-
-export { sendVerificationEmail, resendVerificationEmail }

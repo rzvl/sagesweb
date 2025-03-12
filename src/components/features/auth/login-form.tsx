@@ -20,24 +20,25 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from '@/components/ui/input-otp'
-import { type Login, loginSchema } from '@/lib/validations/auth'
+import { logInSchema } from '@/lib/validations/auth'
 import {
   EMAIL_NOT_VERIFIED_MESSAGE,
   TWO_FACTOR_EMAIL_SENT_MESSAGE,
 } from '@/lib/constants'
-import { loginWithEmail as login } from '@/server/actions/auth'
+import { login } from '@/server/actions/auth'
 import { AlertBox, Loader } from '@/components/elements'
-import PasswordInput from '@/components/features/auth/password-input'
-import ResendTwoFactorCodeButton from './resend-2fa-code-button'
+import { PasswordInput } from '@/components/features/auth/password-input'
+import { ResendTwoFactorCodeButton } from './resend-2fa-code-button'
+import { z } from 'zod'
 
-export default function LogInForm() {
+export function LogInForm() {
   const [error, setError] = useState('')
   const [showTwoFactorAuth, setShowTwoFactorAuth] = useState(false)
 
   const router = useRouter()
 
-  const form = useForm<Login>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<z.infer<typeof logInSchema>>({
+    resolver: zodResolver(logInSchema),
     defaultValues: {
       email: '',
       password: '',
@@ -45,20 +46,20 @@ export default function LogInForm() {
     },
   })
 
-  const onSubmit = async (values: Login) => {
+  const onSubmit = async (values: z.infer<typeof logInSchema>) => {
     setError('')
 
-    const response = await login(values)
+    const res = await login(values)
 
-    if (response?.error) {
-      if (response.error === EMAIL_NOT_VERIFIED_MESSAGE) {
+    if (!res.success) {
+      if (res.message === EMAIL_NOT_VERIFIED_MESSAGE) {
         router.push(`/login/resend-verification-email?email=${values.email}`)
-      } else if (response.error === TWO_FACTOR_EMAIL_SENT_MESSAGE) {
+      } else if (res.message === TWO_FACTOR_EMAIL_SENT_MESSAGE) {
         setShowTwoFactorAuth(true)
         return
       } else {
         setShowTwoFactorAuth(false)
-        setError(response.error)
+        setError(res.message)
         form.reset()
       }
     }

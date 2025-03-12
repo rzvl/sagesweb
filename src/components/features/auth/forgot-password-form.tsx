@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -13,26 +14,23 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import {
-  type ForgotPassword,
-  forgotPasswordSchema,
-} from '@/lib/validations/auth'
+import { forgotPasswordSchema } from '@/lib/validations/auth'
 import { sendPasswordResetEmail } from '@/server/actions/auth'
 import type { TResponse } from '@/lib/types'
 import { AlertBox, Loader } from '@/components/elements'
 
-export default function ForgotPasswordForm() {
+export function ForgotPasswordForm() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const form = useForm<ForgotPassword>({
+  const form = useForm<z.infer<typeof forgotPasswordSchema>>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: '',
     },
   })
 
-  const onSubmit = async (values: ForgotPassword) => {
+  const onSubmit = async (values: z.infer<typeof forgotPasswordSchema>) => {
     setError('')
     setSuccess('')
     const response: TResponse = await sendPasswordResetEmail(values)

@@ -7,7 +7,7 @@ type LogoProps = {
   className?: string
 }
 
-export default function Logo({ text, size = 24, className }: LogoProps) {
+export function Logo({ text, size = 24, className }: LogoProps) {
   return (
     <div className="flex items-center justify-start">
       <Image src="/images/logo.svg" alt="Logo" width={size} height={size} />

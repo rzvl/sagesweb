@@ -1,171 +1,119 @@
-import { sql } from 'drizzle-orm'
+import { relations, sql } from 'drizzle-orm'
 import {
   timestamp,
   pgTable,
   text,
-  primaryKey,
-  integer,
   boolean,
   pgEnum,
+  uuid,
+  primaryKey,
 } from 'drizzle-orm/pg-core'
-import { AdapterAccountType } from 'next-auth/adapters'
-import { createId } from '@paralleldrive/cuid2'
 
-const RoleEnum = pgEnum('roles', ['seeker', 'teacher', 'admin'])
+export const userRoles = ['seeker', 'teacher', 'admin'] as const
+export type UserRole = (typeof userRoles)[number]
+export const RoleEnum = pgEnum('roles', userRoles)
 
-const users = pgTable('user', {
-  id: text('id')
-    .primaryKey()
-    .$defaultFn(() => createId()),
+export const oauthProviders = ['google', 'apple'] as const
+export type OAuthProvider = (typeof oauthProviders)[number]
+export const OAuthProviderEnum = pgEnum('oauth_providers', ['google', 'apple'])
+
+export const users = pgTable('users', {
+  id: uuid().primaryKey().defaultRandom(),
   name: text('name'),
   email: text('email').unique().notNull(),
   username: text('username').unique(),
   password: text('password'),
-  emailVerified: timestamp('emailVerified', { mode: 'date' }),
+  emailVerified: timestamp('email_verified', { withTimezone: true }),
   image: text('image'),
-  twoFactorEnabled: boolean('twoFactorEnabled').default(false),
+  isTwoFactorEnabled: boolean('is_two_factor_enabled').default(false),
   role: RoleEnum('role').notNull().default('seeker'),
+  salt: text('salt'),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .$onUpdate(() => new Date()),
 })
 
-const accounts = pgTable(
-  'account',
+export const usersRelations = relations(users, ({ many }) => ({
+  oAuthAccounts: many(usersOAuthAccounts),
+}))
+
+export const usersOAuthAccounts = pgTable(
+  'users_oauth_accounts',
   {
-    userId: text('userId')
+    userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    type: text('type').$type<AdapterAccountType>().notNull(),
-    provider: text('provider').notNull(),
-    providerAccountId: text('providerAccountId').notNull(),
-    refresh_token: text('refresh_token'),
-    access_token: text('access_token'),
-    expires_at: integer('expires_at'),
-    token_type: text('token_type'),
-    scope: text('scope'),
-    id_token: text('id_token'),
-    session_state: text('session_state'),
+    provider: OAuthProviderEnum('provider').notNull(),
+    providerAccountId: text('provider_account_id').notNull().unique(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
-  (account) => ({
-    pk: primaryKey({
-      columns: [account.provider, account.providerAccountId],
+  (t) => [primaryKey({ columns: [t.providerAccountId, t.provider] })],
+)
+
+export const usersOAuthAccountsRelations = relations(
+  usersOAuthAccounts,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [usersOAuthAccounts.userId],
+      references: [users.id],
     }),
   }),
 )
 
-const authenticators = pgTable(
-  'authenticator',
-  {
-    credentialID: text('credentialID').notNull().unique(),
-    userId: text('userId')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    providerAccountId: text('providerAccountId').notNull(),
-    credentialPublicKey: text('credentialPublicKey').notNull(),
-    counter: integer('counter').notNull(),
-    credentialDeviceType: text('credentialDeviceType').notNull(),
-    credentialBackedUp: boolean('credentialBackedUp').notNull(),
-    transports: text('transports'),
-  },
-  (authenticator) => [
-    {
-      compositePK: primaryKey({
-        columns: [authenticator.userId, authenticator.credentialID],
-      }),
-    },
-  ],
-)
+export const emailVerificationTokens = pgTable('email_verification_tokens', {
+  id: uuid().primaryKey().defaultRandom(),
+  token: text('token').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  expiresAt: timestamp('expires_at', {
+    withTimezone: true,
+  })
+    .notNull()
+    .default(sql`NOW() + INTERVAL '24 hours'`),
+  email: text('email').notNull(),
+})
 
-const emailVerificationTokens = pgTable(
-  'emailVerificationToken',
-  {
-    id: text('id')
-      .notNull()
-      .$defaultFn(() => createId()),
-    token: text('token').notNull(),
-    sentAt: timestamp('sentAt', {
-      mode: 'date',
-    })
-      .notNull()
-      .default(sql`NOW()`),
-    expiresAt: timestamp('expiresAt', {
-      mode: 'date',
-    })
-      .notNull()
-      .default(sql`NOW() + INTERVAL '24 hours'`),
-    email: text('email').notNull(),
-  },
-  (token) => ({
-    pk: primaryKey({
-      columns: [token.id, token.token],
-    }),
-  }),
-)
+export const passwordResetTokens = pgTable('password_reset_tokens', {
+  id: uuid().primaryKey().defaultRandom(),
+  token: text('token').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  expiresAt: timestamp('expires_at', {
+    withTimezone: true,
+  })
+    .notNull()
+    .default(sql`NOW() + INTERVAL '30 minutes'`),
+  email: text('email').notNull(),
+})
 
-const passwordResetTokens = pgTable(
-  'passwordResetToken',
-  {
-    id: text('id')
-      .notNull()
-      .$defaultFn(() => createId()),
-    token: text('token').notNull(),
-    sentAt: timestamp('sentAt', {
-      mode: 'date',
-    })
-      .notNull()
-      .default(sql`NOW()`),
-    expiresAt: timestamp('expiresAt', {
-      mode: 'date',
-    })
-      .notNull()
-      .default(sql`NOW() + INTERVAL '30 minutes'`),
-    email: text('email').notNull(),
-  },
-  (token) => ({
-    pk: primaryKey({
-      columns: [token.id, token.token],
-    }),
-  }),
-)
+export const twoFactorAuthTokens = pgTable('two_factor_auth_tokens', {
+  id: uuid().primaryKey().defaultRandom(),
+  token: text('token').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  expiresAt: timestamp('expires_at', {
+    withTimezone: true,
+  })
+    .notNull()
+    .default(sql`NOW() + INTERVAL '5 minutes'`),
+  email: text('email').notNull(),
+})
 
-const twoFactorAuthTokens = pgTable(
-  'twoFactorAuthToken',
-  {
-    id: text('id')
-      .notNull()
-      .$defaultFn(() => createId()),
-    token: text('token').notNull(),
-    sentAt: timestamp('sentAt', {
-      mode: 'date',
-    })
-      .notNull()
-      .default(sql`NOW()`),
-    expiresAt: timestamp('expiresAt', {
-      mode: 'date',
-    })
-      .notNull()
-      .default(sql`NOW() + INTERVAL '5 minutes'`),
-    email: text('email').notNull(),
-  },
-  (token) => ({
-    pk: primaryKey({
-      columns: [token.id, token.token],
-    }),
-  }),
-)
-
-type UserRole = (typeof RoleEnum)['enumValues'][number]
-type SelectUser = typeof users.$inferSelect
-type InsertUser = typeof users.$inferInsert
-type SelectTokens = typeof emailVerificationTokens.$inferSelect
-type InsertTokens = typeof emailVerificationTokens.$inferInsert
-
-export {
-  users,
-  accounts,
-  authenticators,
-  RoleEnum,
-  emailVerificationTokens,
-  passwordResetTokens,
-  twoFactorAuthTokens,
-}
-
-export type { UserRole, SelectUser, InsertUser, SelectTokens, InsertTokens }
+export type SelectUser = typeof users.$inferSelect
+export type InsertUser = typeof users.$inferInsert
+export type SelectTokens = typeof emailVerificationTokens.$inferSelect
+export type InsertTokens = typeof emailVerificationTokens.$inferInsert
+export type SelectUserOAuthAccounts = typeof usersOAuthAccounts.$inferSelect
+export type InsertUserOAuthAccounts = typeof usersOAuthAccounts.$inferInsert

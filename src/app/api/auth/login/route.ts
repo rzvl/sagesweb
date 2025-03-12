@@ -1,13 +1,11 @@
 import { redirect } from 'next/navigation'
-import { getCurrentUser } from '@/server/data/user'
+import { getCurrentUser } from '@/server/actions/auth'
 
 export async function GET() {
-  const user = getCurrentUser()
-
-  console.log('current user', user)
+  const user = await getCurrentUser({ withFullUser: true })
 
   if (!user) {
-    return new Response('Unauthorized', { status: 401 })
+    redirect('/login')
   }
 
   if (!user.username) {

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const editProfileSchema = z.object({
+export const editProfileSchema = z.object({
   name: z
     .string()
     .trim()
@@ -9,7 +9,7 @@ const editProfileSchema = z.object({
   image: z.string().trim().optional(),
 })
 
-const changePasswordSchema = z.object({
+export const changePasswordSchema = z.object({
   currentPassword: z
     .string()
     .trim()
@@ -22,9 +22,5 @@ const changePasswordSchema = z.object({
     .max(64, { message: 'Repeat Password must be less than 64 characters' }),
 })
 
-type EditProfile = z.infer<typeof editProfileSchema>
-type ChangePassword = z.infer<typeof changePasswordSchema>
-
-export { editProfileSchema, changePasswordSchema }
-
-export type { EditProfile, ChangePassword }
+export type EditProfile = z.infer<typeof editProfileSchema>
+export type ChangePassword = z.infer<typeof changePasswordSchema>

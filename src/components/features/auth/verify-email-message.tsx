@@ -9,7 +9,7 @@ type VerifyEmailMessageProps = {
   autoStartTimer?: boolean
 }
 
-export default function VerifyEmailMessage({
+export function VerifyEmailMessage({
   title,
   description,
   autoStartTimer = true,

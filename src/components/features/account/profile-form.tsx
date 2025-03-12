@@ -17,18 +17,15 @@ import {
 import { type EditProfile, editProfileSchema } from '@/lib/validations/account'
 import { AlertBox, Loader, UserAvatar } from '@/components/elements'
 import { updateProfileSettings } from '@/server/actions/auth'
-import { useSession } from 'next-auth/react'
-import { getCurrentUser } from '@/server/data/user'
+import { FullUser } from '@/server/actions/auth/get-current-user'
 
-export default function ProfileForm() {
+type ProfileFormProps = {
+  user: FullUser | null
+}
+
+export function ProfileForm({ user }: ProfileFormProps) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-
-  const { update } = useSession()
-
-  const user = getCurrentUser()
-
-  console.log('user', user)
 
   const form = useForm<EditProfile>({
     resolver: zodResolver(editProfileSchema),
@@ -47,8 +44,6 @@ export default function ProfileForm() {
     }
 
     const response = await updateProfileSettings(user?.id, values)
-
-    update({ ...values })
 
     if (response.success) {
       setSuccess(response.message)

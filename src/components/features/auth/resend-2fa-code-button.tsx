@@ -7,11 +7,7 @@ import { AlertBox, Loader } from '@/components/elements'
 import { addMinutes } from '@/lib/utils'
 import { resendTwoFactorEmail } from '@/server/actions/auth/send-two-factor-email'
 
-export default function ResendTwoFactorCodeButton({
-  email,
-}: {
-  email: string
-}) {
+export function ResendTwoFactorCodeButton({ email }: { email: string }) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')

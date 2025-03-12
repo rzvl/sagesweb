@@ -1,40 +1,37 @@
-import { NextResponse } from 'next/server'
-import { auth as middleware } from '@/server/auth'
+import { NextResponse, type NextRequest } from 'next/server'
 import {
-  DEFAULT_LOGIN_REDIRECT,
-  authRoutes,
-  apiAuthPrefix,
-  accountRoutesPrefix,
-} from '@/routes'
+  getUserFromSession,
+  updateUserSessionExpiration,
+} from '@/server/data/session'
+import { authRoutes, DEFAULT_LOGIN_REDIRECT } from '@/routes'
 
-export default middleware((req) => {
-  const { nextUrl } = req
-  const isLoggedIn = !!req.auth
+export async function middleware(request: NextRequest) {
+  const response = (await middlewareAuth(request)) ?? NextResponse.next()
 
-  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix)
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname)
-  const isAccountRoute = nextUrl.pathname.startsWith(accountRoutesPrefix)
+  await updateUserSessionExpiration({
+    set: (key, value, options) => {
+      response.cookies.set({ ...options, name: key, value })
+    },
+    get: (key) => request.cookies.get(key),
+  })
 
-  if (isApiAuthRoute) {
-    return NextResponse.next()
-  }
+  return response
+}
 
-  if (isAuthRoute) {
-    if (isLoggedIn) {
+async function middlewareAuth(request: NextRequest) {
+  const { nextUrl } = request
+
+  const user = await getUserFromSession(request.cookies)
+
+  if (authRoutes.includes(nextUrl.pathname)) {
+    if (user) {
       return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl))
     }
     return NextResponse.next()
   }
 
-  if (isAccountRoute) {
-    if (isLoggedIn) {
-      return NextResponse.next()
-    }
-    return NextResponse.redirect(new URL('/login', nextUrl))
-  }
-
   return NextResponse.next()
-})
+}
 
 export const config = {
   matcher: [

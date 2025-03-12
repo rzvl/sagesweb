@@ -6,10 +6,10 @@ import {
 } from '@/components/features/auth'
 import { Button } from '@/components/ui/button'
 import { AlertBox } from '@/components/elements'
-import { getCurrentUser } from '@/server/data/user'
+import { getCurrentUser } from '@/server/actions/auth'
 
 export default async function UsernameSetupPage() {
-  const user = getCurrentUser()
+  const user = await getCurrentUser({ withFullUser: true })
 
   if (user?.username) {
     return <UserAlreadySetCard />

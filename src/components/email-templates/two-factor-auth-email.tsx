@@ -10,7 +10,7 @@ import {
   Tailwind,
 } from '@react-email/components'
 
-export default function TwoFactorAuthEmail({ code }: { code: string }) {
+export function TwoFactorAuthEmail({ code }: { code: string }) {
   return (
     <Html>
       <Head />

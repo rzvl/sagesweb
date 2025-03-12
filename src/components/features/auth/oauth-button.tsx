@@ -3,14 +3,14 @@
 import { useState } from 'react'
 import { AppleIcon, GoogleIcon } from '@/components/icons'
 import { Button } from '@/components/ui/button'
-import { loginWithOAuth } from '@/server/actions/auth'
+import { oAuthLogin } from '@/server/actions/auth'
 import { AlertBox, Loader } from '@/components/elements'
 
 type OAuthButtonProps = {
   type: 'apple' | 'google'
 }
 
-export default function OAuthButton({ type }: OAuthButtonProps) {
+export function OAuthButton({ type }: OAuthButtonProps) {
   const data = {
     apple: {
       icon: AppleIcon,
@@ -28,10 +28,10 @@ export default function OAuthButton({ type }: OAuthButtonProps) {
   const handleClick = async () => {
     setIsPending(true)
 
-    const response = await loginWithOAuth(type)
+    const res = await oAuthLogin(type)
 
-    if (response?.error) {
-      setError(response.error)
+    if (res?.error) {
+      setError(res.error)
     }
 
     setIsPending(false)

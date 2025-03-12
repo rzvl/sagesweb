@@ -1,0 +1,11 @@
+-- -- ALTER TABLE "emailVerificationToken" ADD PRIMARY KEY ("id");--> statement-breakpoint
+-- ALTER TABLE "emailVerificationToken" ALTER COLUMN "id" SET DATA TYPE uuid;--> statement-breakpoint
+-- ALTER TABLE "emailVerificationToken" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+-- -- ALTER TABLE "passwordResetToken" ADD PRIMARY KEY ("id");--> statement-breakpoint
+-- ALTER TABLE "passwordResetToken" ALTER COLUMN "id" SET DATA TYPE uuid;--> statement-breakpoint
+-- ALTER TABLE "passwordResetToken" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+-- -- ALTER TABLE "twoFactorAuthToken" ADD PRIMARY KEY ("id");--> statement-breakpoint
+-- ALTER TABLE "twoFactorAuthToken" ALTER COLUMN "id" SET DATA TYPE uuid;--> statement-breakpoint
+-- ALTER TABLE "twoFactorAuthToken" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();--> statement-breakpoint
+-- ALTER TABLE "users_table" ALTER COLUMN "id" SET DATA TYPE uuid;--> statement-breakpoint
+-- ALTER TABLE "users_table" ALTER COLUMN "id" SET DEFAULT gen_random_uuid();

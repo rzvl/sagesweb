@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -14,17 +15,17 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { type Signup, signupSchema } from '@/lib/validations/auth'
+import { signupSchema } from '@/lib/validations/auth'
 import { signup } from '@/server/actions/auth'
 import { AlertBox, Loader } from '@/components/elements'
-import PasswordInput from './password-input'
+import { PasswordInput } from './password-input'
 
-export default function SignUpForm() {
+export function SignUpForm() {
   const router = useRouter()
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const form = useForm<Signup>({
+  const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
       email: '',
@@ -32,17 +33,17 @@ export default function SignUpForm() {
     },
   })
 
-  const onSubmit = async (values: Signup) => {
+  const onSubmit = async (values: z.infer<typeof signupSchema>) => {
     setError('')
     setSuccess('')
-    const response = await signup(values)
+    const res = await signup(values)
     form.reset()
 
-    if (response.success) {
-      setSuccess(response.message)
+    if (res?.success) {
+      setSuccess(res.message)
       router.push(`/signup/success?email=${values.email}`)
     } else {
-      setError(response.message)
+      setError(res.message)
     }
   }
 

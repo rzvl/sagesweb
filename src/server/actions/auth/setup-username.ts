@@ -1,39 +1,42 @@
 'use server'
 
+import { z } from 'zod'
 import { TResponse } from '@/lib/types'
-import { type UsernameSetup, usernameSetupSchema } from '@/lib/validations/auth'
+import { usernameSetupSchema } from '@/lib/validations/auth'
 import {
   getUserByEmail,
   getUserByUsername,
   updateUser,
 } from '@/server/data/user'
 
-async function setupUsername(values: UsernameSetup): Promise<TResponse> {
+async function setupUsername(
+  values: z.infer<typeof usernameSetupSchema>,
+): Promise<TResponse> {
   try {
     const validatedFields = await usernameSetupSchema.safeParseAsync(values)
 
     if (!validatedFields.success) {
-      throw new Error('Invalid username')
+      return { success: false, message: 'Invalid credentials' }
     }
 
     const { username, email } = validatedFields.data
 
     if (!email) {
-      throw new Error('Email was not provided')
+      return { success: false, message: 'Email was not provided' }
     }
 
     if (!(await checkUsernameAvailability(username))) {
-      throw new Error('Username is already taken')
+      return { success: false, message: 'Username is already taken' }
     }
 
     const existingUser = await getUserByEmail(email)
 
     if (!existingUser) {
-      throw new Error('User not found')
+      return { success: false, message: 'User not found' }
     }
 
     if (existingUser.username) {
-      throw new Error('Username already set')
+      return { success: false, message: 'Username already set' }
     }
 
     await updateUser(existingUser.id, { username })

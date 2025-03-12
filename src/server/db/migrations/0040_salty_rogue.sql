@@ -1,0 +1,2 @@
+ALTER TABLE "emailVerificationToken" ADD COLUMN "id" uuid DEFAULT gen_random_uuid() NOT NULL;
+ALTER TABLE "emailVerificationToken" ADD CONSTRAINT "emailVerificationToken_id_token_pk" PRIMARY KEY("id","token");--> statement-breakpoint

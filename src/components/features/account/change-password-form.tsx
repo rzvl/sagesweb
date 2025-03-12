@@ -18,7 +18,7 @@ import {
 } from '@/lib/validations/account'
 import { Loader } from '@/components/elements'
 
-export default function ChangePasswordForm() {
+export function ChangePasswordForm() {
   const form = useForm<ChangePassword>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {

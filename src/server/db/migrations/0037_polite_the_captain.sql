@@ -1,0 +1,3 @@
+-- ALTER TABLE "emailVerificationToken" ALTER COLUMN "id" SET NOT NULL;--> statement-breakpoint
+-- ALTER TABLE "passwordResetToken" ALTER COLUMN "id" SET NOT NULL;--> statement-breakpoint
+-- ALTER TABLE "twoFactorAuthToken" ALTER COLUMN "id" SET NOT NULL;

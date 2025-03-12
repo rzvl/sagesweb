@@ -12,7 +12,7 @@ import {
   Tailwind,
 } from '@react-email/components'
 
-export default function ResetPasswordEmail({ url }: { url: string }) {
+export function ResetPasswordEmail({ url }: { url: string }) {
   return (
     <Html>
       <Head />

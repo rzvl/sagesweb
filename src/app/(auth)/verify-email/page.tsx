@@ -23,11 +23,11 @@ export default function VerifyEmailPage() {
 
   useEffect(() => {
     async function verifyUserEamil(token: string | null) {
-      const response = await verifyEmail(token)
-      if (response.success) {
-        setSuccess(response.message)
+      const res = await verifyEmail(token)
+      if (res.success) {
+        setSuccess(res.message)
       } else {
-        setError(response.message)
+        setError(res.message)
       }
       setIsLoading(false)
     }

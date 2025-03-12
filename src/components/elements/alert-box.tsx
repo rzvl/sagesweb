@@ -6,7 +6,7 @@ type AlertBoxProps = {
   message: string
 }
 
-export default function AlertBox({ variant, message }: AlertBoxProps) {
+export function AlertBox({ variant, message }: AlertBoxProps) {
   return (
     <Alert variant={variant}>
       <AlertDescription className="flex items-center gap-x-2">

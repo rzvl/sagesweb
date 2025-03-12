@@ -10,7 +10,7 @@ import { addMinutes } from '@/lib/utils'
 import { EAMIL_IS_VERIFIED_MESSAGE } from '@/lib/constants'
 import { useSearchParams } from 'next/navigation'
 
-export default function ResendEmailVerificationButton({
+export function ResendEmailVerificationButton({
   autoStart = true,
 }: {
   autoStart?: boolean

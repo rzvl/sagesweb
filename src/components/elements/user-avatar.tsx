@@ -7,7 +7,7 @@ type UserAvatarProps = {
   src?: string
 }
 
-export default function UserAvatar({ className, src }: UserAvatarProps) {
+export function UserAvatar({ className, src }: UserAvatarProps) {
   return (
     <Avatar className={cn('h-6 w-6 rounded-full', className)}>
       <AvatarImage src={src} alt="avatar" />

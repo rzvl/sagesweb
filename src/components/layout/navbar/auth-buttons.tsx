@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import AvatarDropdown from './avatar-dropdown'
-import { getCurrentUser } from '@/server/data/user'
+import { AvatarDropdown } from './avatar-dropdown'
+import { getCurrentUser } from '@/server/actions/auth'
 
-export default async function AuthButtons() {
-  const user = getCurrentUser()
+export async function AuthButtons() {
+  const user = await getCurrentUser({ withFullUser: true })
 
   if (user) {
     return <AvatarDropdown user={user} />

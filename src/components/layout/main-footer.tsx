@@ -41,7 +41,7 @@ const footerLinks = [
   },
 ]
 
-export default function MainFooter() {
+export function MainFooter() {
   return (
     <footer className="mx-8 mb-2 flex flex-1 flex-col flex-wrap justify-start gap-6 md:flex-row">
       <div className="order-last flex w-full flex-row justify-between gap-6 md:order-first md:w-48 md:flex-col md:justify-start">

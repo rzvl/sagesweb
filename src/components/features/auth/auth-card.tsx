@@ -8,15 +8,15 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { SeparatorWithText } from '@/components/elements'
-import SignUpForm from './signup-form'
-import LogInForm from './login-form'
+import { SignUpForm } from './signup-form'
+import { LogInForm } from './login-form'
 import { OAuthButton } from '@/components/features/auth'
 
 type AuthCardProps = {
   type: 'signup' | 'login'
 }
 
-export default async function AuthCard({ type }: AuthCardProps) {
+export async function AuthCard({ type }: AuthCardProps) {
   const data = {
     signup: {
       title: 'Join Today',

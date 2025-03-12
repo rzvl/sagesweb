@@ -3,8 +3,8 @@
 import { useTransition } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
-import type { Session } from 'next-auth'
 import { Bookmark, LogOut, Settings, User as UserIcon } from 'lucide-react'
+import { toast } from 'sonner'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,16 +16,27 @@ import {
 import { FullPageLoader, UserAvatar } from '@/components/elements'
 import { logout } from '@/server/actions/auth'
 import { cn } from '@/lib/utils'
+import { FullUser } from '@/server/actions/auth/get-current-user'
 
 type AvatarDropdownProps = {
-  user?: Session['user']
+  user: FullUser
 }
 
-export default function AvatarDropdown({ user }: AvatarDropdownProps = {}) {
+export function AvatarDropdown({ user }: AvatarDropdownProps) {
   const [isPending, startTransition] = useTransition()
 
   const menuItemStyles =
     'group cursor-pointer transition-all duration-300 ease-in-out'
+
+  const handleLogout = async () => {
+    startTransition(async () => {
+      const res = await logout()
+
+      if (!res?.success) {
+        toast.error(res.message)
+      }
+    })
+  }
 
   return (
     <DropdownMenu modal={false}>
@@ -67,7 +78,7 @@ export default function AvatarDropdown({ user }: AvatarDropdownProps = {}) {
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onClick={() => {
-            startTransition(async () => await logout())
+            startTransition(handleLogout)
           }}
           disabled={isPending}
           className={cn('focus:bg-destructive/30', menuItemStyles)}

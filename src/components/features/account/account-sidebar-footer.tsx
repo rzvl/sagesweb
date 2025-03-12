@@ -2,6 +2,7 @@
 
 import { useTransition } from 'react'
 import { LogOut, MoreHorizontal } from 'lucide-react'
+import { toast } from 'sonner'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,12 +17,24 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { getCurrentUser } from '@/server/data/user'
+import type { FullUser } from '@/server/actions/auth/get-current-user'
 
-export default function AccountSidebarFooter() {
+type AccountSidebarFooterProps = {
+  user: FullUser | null
+}
+
+export function AccountSidebarFooter({ user }: AccountSidebarFooterProps) {
   const [isPending, startTransition] = useTransition()
 
-  const user = getCurrentUser()
+  const handleLogout = async () => {
+    startTransition(async () => {
+      const res = await logout()
+
+      if (!res?.success) {
+        toast.error(res.message)
+      }
+    })
+  }
 
   return (
     <SidebarFooter>
@@ -40,7 +53,7 @@ export default function AccountSidebarFooter() {
                       {user?.name || user?.role}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {`@${user?.username}` || user?.email}
+                      {user?.username ? `@${user?.username}` : user?.email}
                     </span>
                   </div>
                   <MoreHorizontal className="ml-auto" />
@@ -49,7 +62,7 @@ export default function AccountSidebarFooter() {
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="start">
               <DropdownMenuItem
-                onClick={() => startTransition(async () => await logout())}
+                onClick={handleLogout}
                 disabled={isPending}
                 className="group cursor-pointer transition-all duration-300 ease-in-out focus:bg-destructive/30"
               >

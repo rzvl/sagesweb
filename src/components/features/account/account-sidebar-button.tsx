@@ -8,7 +8,7 @@ type AccountSidebarButtonProps = {
   children: React.ReactNode
 }
 
-export default function AccountSidebarButton({
+export function AccountSidebarButton({
   url,
   children,
 }: AccountSidebarButtonProps) {

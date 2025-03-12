@@ -3,8 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { CardContent, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -15,20 +16,20 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { type ResetPassword, resetPasswordSchema } from '@/lib/validations/auth'
+import { resetPasswordSchema } from '@/lib/validations/auth'
 import { resetPassword } from '@/server/actions/auth'
 import type { TResponse } from '@/lib/types'
 import { AlertBox, Loader } from '@/components/elements'
-import PasswordInput from './password-input'
+import { PasswordInput } from './password-input'
 
-export default function ResetPasswordForm() {
+export function ResetPasswordForm() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
 
-  const form = useForm<ResetPassword>({
+  const form = useForm<z.infer<typeof resetPasswordSchema>>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
       password: '',
@@ -36,7 +37,7 @@ export default function ResetPasswordForm() {
     },
   })
 
-  const onSubmit = async (values: ResetPassword) => {
+  const onSubmit = async (values: z.infer<typeof resetPasswordSchema>) => {
     setError('')
     setSuccess('')
     const response: TResponse = await resetPassword(values)

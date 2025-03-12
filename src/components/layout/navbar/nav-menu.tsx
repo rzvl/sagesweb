@@ -19,7 +19,7 @@ const navMenuItems = [
   },
 ]
 
-export default function NavMenu() {
+export function NavMenu() {
   return (
     <NavigationMenu className="hidden md:block">
       <NavigationMenuList>

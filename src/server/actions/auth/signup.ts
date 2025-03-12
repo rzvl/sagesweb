@@ -1,43 +1,54 @@
 'use server'
 
-import bcrypt from 'bcryptjs'
-import { type Signup, signupSchema } from '@/lib/validations/auth'
-import { getUserByEmail } from '@/server/data/user'
-import { TResponse } from '@/lib/types'
+import { eq } from 'drizzle-orm'
+import { z } from 'zod'
+import { signupSchema } from '@/lib/validations/auth'
 import { sendVerificationEmail } from './send-verification-email'
 import { db } from '@/server/db'
 import { users } from '@/server/db/schema/users'
+import { generateSalt, hashPassword } from '@/lib/utils'
+import { TResponse } from '@/lib/types'
 
-export default async function signup(values: Signup): Promise<TResponse> {
+export async function signup(
+  values: z.infer<typeof signupSchema>,
+): Promise<TResponse> {
   try {
     const validatedFields = signupSchema.safeParse(values)
 
     if (!validatedFields.success) {
-      throw new Error('Invalid credentials')
+      return { success: false, message: 'Invalid credentials' }
     }
 
     const { email, password } = validatedFields.data
 
-    const existingUser = await getUserByEmail(email)
+    const existingUser = await db.query.users.findFirst({
+      columns: { email: true, emailVerified: true },
+      where: eq(users.email, email),
+    })
 
     if (existingUser) {
       if (!existingUser.emailVerified) {
-        return await sendVerificationEmail(email)
+        return await sendVerificationEmail(existingUser.email)
       }
-      throw new Error('Email already exists')
+      return {
+        success: false,
+        message: 'Account already exists for this email!',
+      }
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const salt = generateSalt()
+    const hashedPassword = await hashPassword(password, salt)
 
     await db.insert(users).values({
       email,
       password: hashedPassword,
+      salt,
     })
 
     return await sendVerificationEmail(email)
   } catch (error) {
     if (error instanceof Error) {
-      return { success: false, message: (error as Error).message }
+      return { success: false, message: error.message }
     } else {
       return { success: false, message: 'Something went wrong' }
     }

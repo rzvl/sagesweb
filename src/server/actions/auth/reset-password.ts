@@ -1,63 +1,77 @@
 'use server'
 
 import { eq } from 'drizzle-orm'
-import bcrypt from 'bcryptjs'
+import { z } from 'zod'
 import { getUserByEmail, updateUser } from '@/server/data/user'
-import { type ResetPassword, resetPasswordSchema } from '@/lib/validations/auth'
+import { resetPasswordSchema } from '@/lib/validations/auth'
 import { deleteToken, getTokenByToken } from '@/server/data/token'
 import { db } from '@/server/db'
 import { users } from '@/server/db/schema/users'
+import { generateSalt, hashPassword } from '@/lib/utils'
+import { TResponse } from '@/lib/types'
 
-export default async function resetPassword(values: ResetPassword) {
+export async function resetPassword(
+  values: z.infer<typeof resetPasswordSchema>,
+): Promise<TResponse> {
   const validatedFields = resetPasswordSchema.safeParse(values)
 
   if (!validatedFields.success) {
-    throw new Error('Invalid credentials')
+    return { success: false, message: 'Invalid credentials' }
   }
 
   const { password, token } = validatedFields.data
 
   try {
     if (!token) {
-      throw new Error(
-        'Token not found. Please use the link in your email to verify your email.',
-      )
+      return {
+        success: false,
+        message:
+          'Token not found. Please use the link in your email to verify your email.',
+      }
     }
 
     const existingToken = await getTokenByToken(token, 'passwordReset')
 
     if (!existingToken) {
-      throw new Error(
-        'Invalid token. Please use the link in your email to verify your email.',
-      )
+      return {
+        success: false,
+        message:
+          'Invalid token. Please use the link in your email to verify your email.',
+      }
     }
 
     const isTokenExpired = existingToken.expiresAt.getTime() < Date.now()
 
     if (isTokenExpired) {
       await deleteToken(existingToken.token, 'passwordReset')
-      throw new Error(
-        'Token has expired. Please use the button below to get a new verification email.',
-      )
+      return {
+        success: false,
+        message:
+          'Token has expired. Please use the button below to get a new verification email.',
+      }
     }
 
     const user = await getUserByEmail(existingToken.email)
 
     if (!user) {
       await deleteToken(existingToken.token, 'passwordReset')
-      throw new Error('User not found. You need to create an account first.')
+      return {
+        success: false,
+        message: 'User not found. You need to create an account first.',
+      }
     }
 
     if (!user.emailVerified) {
       await updateUser(user.id, { emailVerified: new Date() })
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const salt = generateSalt()
+    const hashedPassword = await hashPassword(password, salt)
 
     await deleteToken(existingToken.token, 'passwordReset')
     await db
       .update(users)
-      .set({ password: hashedPassword })
+      .set({ password: hashedPassword, salt })
       .where(eq(users.id, user.id))
 
     return {

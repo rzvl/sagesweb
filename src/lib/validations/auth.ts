@@ -1,7 +1,7 @@
-import { checkUsernameAvailability } from '@/server/actions/auth'
 import { z } from 'zod'
+import { checkUsernameAvailability } from '@/server/actions/auth'
 
-const loginSchema = z.object({
+export const logInSchema = z.object({
   email: z
     .string()
     .trim()
@@ -12,7 +12,7 @@ const loginSchema = z.object({
   code: z.string().optional(),
 })
 
-const signupSchema = z.object({
+export const signupSchema = z.object({
   email: z
     .string()
     .trim()
@@ -28,7 +28,7 @@ const signupSchema = z.object({
     .max(64, { message: 'Password must be less than 64 characters' }),
 })
 
-const forgotPasswordSchema = z.object({
+export const forgotPasswordSchema = z.object({
   email: z
     .string()
     .trim()
@@ -38,7 +38,7 @@ const forgotPasswordSchema = z.object({
     .transform((val) => val.toLowerCase()),
 })
 
-const resetPasswordSchema = z.object({
+export const resetPasswordSchema = z.object({
   password: z
     .string()
     .trim()
@@ -52,7 +52,7 @@ const resetPasswordSchema = z.object({
     .optional(),
 })
 
-const usernameSchema = z
+export const usernameSchema = z
   .string()
   .trim()
   .min(1, { message: 'Username is required' })
@@ -64,23 +64,7 @@ const usernameSchema = z
     message: 'Username is already taken',
   })
 
-const usernameSetupSchema = z.object({
+export const usernameSetupSchema = z.object({
   email: z.string(),
   username: usernameSchema,
 })
-
-type Login = z.infer<typeof loginSchema>
-type Signup = z.infer<typeof signupSchema>
-type ForgotPassword = z.infer<typeof forgotPasswordSchema>
-type ResetPassword = z.infer<typeof resetPasswordSchema>
-type UsernameSetup = z.infer<typeof usernameSetupSchema>
-
-export {
-  loginSchema,
-  signupSchema,
-  forgotPasswordSchema,
-  resetPasswordSchema,
-  usernameSchema,
-  usernameSetupSchema,
-}
-export type { Login, Signup, ForgotPassword, ResetPassword, UsernameSetup }

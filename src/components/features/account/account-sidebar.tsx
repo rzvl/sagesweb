@@ -12,9 +12,9 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { Logo } from '@/components/elements'
-import AccountSidebarButton from './account-sidebar-button'
-import AccountSidebarFooter from './account-sidebar-footer'
-import { currentUser } from '@/lib/auth'
+import { AccountSidebarButton } from './account-sidebar-button'
+import { AccountSidebarFooter } from './account-sidebar-footer'
+import { getCurrentUser } from '@/server/actions/auth'
 
 const items = [
   {
@@ -34,9 +34,8 @@ const items = [
   },
 ]
 
-export default async function AccountSidebar() {
-  const user = currentUser()
-  const role = user.role
+export async function AccountSidebar() {
+  const user = await getCurrentUser({ withFullUser: true })
 
   return (
     <Sidebar>
@@ -56,7 +55,7 @@ export default async function AccountSidebar() {
                   </AccountSidebarButton>
                 </SidebarMenuItem>
               ))}
-              {role === 'admin' && (
+              {user?.role === 'admin' && (
                 <SidebarMenuItem key="admin">
                   <AccountSidebarButton url="/account/admin">
                     <Link href="/account/admin">
@@ -70,7 +69,7 @@ export default async function AccountSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <AccountSidebarFooter />
+      <AccountSidebarFooter user={user} />
     </Sidebar>
   )
 }

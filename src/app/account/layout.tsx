@@ -4,14 +4,14 @@ import {
   AccountPageContainer,
   AccountSidebar,
 } from '@/components/features/account'
-import { getCurrentUser } from '@/server/data/user'
+import { getCurrentUser } from '@/server/actions/auth'
 
 export default async function Layout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const user = getCurrentUser()
+  const user = await getCurrentUser()
 
   if (!user) {
     redirect('/login')

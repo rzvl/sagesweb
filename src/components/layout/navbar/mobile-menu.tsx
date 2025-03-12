@@ -16,7 +16,7 @@ const mobileMenuItems = [
   { name: 'Resources', href: '/resources' },
 ]
 
-export default function MobileMenu() {
+export function MobileMenu() {
   return (
     <div className="md:hidden">
       <Sheet>

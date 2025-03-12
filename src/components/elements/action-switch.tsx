@@ -12,7 +12,7 @@ interface ActionSwitchProps {
   onToggleAction: (isChecked: boolean) => Promise<TResponse>
 }
 
-export default function ActionSwitch({
+export function ActionSwitch({
   label,
   description,
   onToggleAction,

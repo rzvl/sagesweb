@@ -1,16 +1,17 @@
-import { loginWithEmail, loginWithOAuth } from './login'
-import logout from './logout'
-import signup from './signup'
-import verifyEmail from './verify-email'
+import { login, oAuthLogin } from './login'
+import { logout } from './logout'
+import { signup } from './signup'
+import { verifyEmail } from './verify-email'
 import { resendVerificationEmail } from './send-verification-email'
-import sendPasswordResetEmail from './send-password-reset-email'
-import resetPassword from './reset-password'
+import { sendPasswordResetEmail } from './send-password-reset-email'
+import { resetPassword } from './reset-password'
 import { checkUsernameAvailability, setupUsername } from './setup-username'
-import updateProfileSettings from './update-profile-settings'
+import { updateProfileSettings } from './update-profile-settings'
+import { getCurrentUser } from './get-current-user'
 
 export {
-  loginWithEmail,
-  loginWithOAuth,
+  login,
+  oAuthLogin,
   logout,
   signup,
   verifyEmail,
@@ -20,4 +21,5 @@ export {
   setupUsername,
   checkUsernameAvailability,
   updateProfileSettings,
+  getCurrentUser,
 }

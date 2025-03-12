@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import { ActionSwitch } from '@/components/elements'
 import { ChangePasswordForm } from '@/components/features/account'
-import { getCurrentUser } from '@/server/data/user'
+import { getCurrentUser } from '@/server/actions/auth'
 
 export default async function SettingsPage() {
-  const user = getCurrentUser()
+  const user = await getCurrentUser({ withFullUser: true })
 
   const handleToggle = async (isChecked: boolean) => {
     'use server'

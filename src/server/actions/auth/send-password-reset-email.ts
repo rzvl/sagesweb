@@ -1,10 +1,9 @@
 'use server'
 
 import { Resend } from 'resend'
-import {
-  type ForgotPassword,
-  forgotPasswordSchema,
-} from '@/lib/validations/auth'
+import { z } from 'zod'
+import { env } from '@/env/server'
+import { forgotPasswordSchema } from '@/lib/validations/auth'
 import { TResponse } from '@/lib/types'
 import {
   deleteToken,
@@ -12,17 +11,17 @@ import {
   getTokenByEmail,
 } from '@/server/data/token'
 import { BASE_URL } from '@/lib/constants'
-import ResetPasswordEmail from '@/components/email-templates/reset-password-email'
+import { ResetPasswordEmail } from '@/components/email-templates/reset-password-email'
 import { getUserByEmail } from '@/server/data/user'
 
-export default async function sendPasswordResetEmail(
-  values: ForgotPassword,
+export async function sendPasswordResetEmail(
+  values: z.infer<typeof forgotPasswordSchema>,
 ): Promise<TResponse> {
   try {
     const validatedFields = forgotPasswordSchema.safeParse(values)
 
     if (!validatedFields.success) {
-      throw new Error('Invalid credentials')
+      return { success: false, message: 'Invalid credentials' }
     }
 
     const { email } = validatedFields.data
@@ -30,26 +29,31 @@ export default async function sendPasswordResetEmail(
     const existingUser = await getUserByEmail(email)
 
     if (!existingUser) {
-      throw new Error('We couldn’t find an account with that email address.')
+      return {
+        success: false,
+        message: 'We couldn’t find an account with that email address.',
+      }
     }
 
     const existingToken = await getTokenByEmail(email, 'passwordReset')
 
     if (existingToken) {
       const isFiveMinutesPast =
-        Date.now() > 5 * 60000 + existingToken.sentAt.getTime()
+        Date.now() > 5 * 60000 + existingToken.createdAt.getTime()
 
       if (!isFiveMinutesPast) {
-        throw new Error(
-          'You can only request a reset password email every 5 minutes.',
-        )
+        return {
+          success: false,
+          message:
+            'You can only request a reset password email every 5 minutes.',
+        }
       }
       await deleteToken(existingToken.token, 'passwordReset')
     }
 
     const { token } = await generateToken(email, 'passwordReset')
 
-    const resend = new Resend(process.env.RESEND_API_KEY)
+    const resend = new Resend(env.RESEND_API_KEY)
     const url = `${BASE_URL}/reset-password?token=${token}`
 
     await resend.emails.send({

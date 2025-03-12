@@ -1,4 +1,4 @@
-export default function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
+export function InstagramIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} viewBox="0 0 25 24" xmlns="http://www.w3.org/2000/svg">
       <path

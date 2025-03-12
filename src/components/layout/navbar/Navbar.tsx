@@ -1,12 +1,12 @@
 import Link from 'next/link'
 import { Logo } from '@/components/elements'
-import NavMenu from './nav-menu'
-import AuthButtons from './auth-buttons'
-import ModeToggle from '../mode-toggle'
-import SearchBtn from './search-btn'
-import MobileMenu from './mobile-menu'
+import { NavMenu } from './nav-menu'
+import { AuthButtons } from './auth-buttons'
+import { ModeToggle } from '../mode-toggle'
+import { SearchBtn } from './search-btn'
+import { MobileMenu } from './mobile-menu'
 
-export default function Navbar() {
+export function Navbar() {
   return (
     <nav className="mb-4 h-16 w-full">
       <div className="fixed flex h-16 w-full items-center justify-between border-b border-border/30 bg-background bg-opacity-50 px-4 lg:px-8">

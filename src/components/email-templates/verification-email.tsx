@@ -12,7 +12,7 @@ import {
   Tailwind,
 } from '@react-email/components'
 
-export default function VerificationEmail({ url }: { url: string }) {
+export function VerificationEmail({ url }: { url: string }) {
   return (
     <Html>
       <Head />
