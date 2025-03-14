@@ -7,7 +7,8 @@ import {
   twoFactorAuthTokens,
 } from '@/server/db/schema/users'
 import 'server-only'
-import { generateRandomToken } from '@/lib/utils'
+import { generateRandomHex } from '@/lib/utils'
+import { generateRandomSixDigitNumber } from '@/lib/utils'
 
 const tables = {
   emailVerification: emailVerificationTokens,
@@ -22,7 +23,7 @@ export async function generateToken(email: string, tokenType: TokenType) {
   const token =
     tokenType === 'twoFactorAuth'
       ? (await generateRandomSixDigitNumber()).toString()
-      : generateRandomToken()
+      : generateRandomHex(32).normalize()
 
   const addedToken = await db
     .insert(tokenTable)
@@ -66,10 +67,4 @@ export async function deleteToken(token: string, tokenType: TokenType) {
   const tokenTable = tables[tokenType]
 
   await db.delete(tokenTable).where(eq(tokenTable.token, token))
-}
-
-export async function generateRandomSixDigitNumber() {
-  const randomBuffer = new Uint32Array(1)
-  crypto.getRandomValues(randomBuffer)
-  return (randomBuffer[0] % 900000) + 100000
 }

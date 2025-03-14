@@ -2,11 +2,11 @@
 
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
+import bcrypt from 'bcryptjs'
 import { signupSchema } from '@/lib/validations/auth'
 import { sendVerificationEmail } from './send-verification-email'
 import { db } from '@/server/db'
 import { users } from '@/server/db/schema/users'
-import { generateSalt, hashPassword } from '@/lib/utils'
 import { TResponse } from '@/lib/types'
 
 export async function signup(
@@ -36,13 +36,11 @@ export async function signup(
       }
     }
 
-    const salt = generateSalt()
-    const hashedPassword = await hashPassword(password, salt)
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     await db.insert(users).values({
       email,
       password: hashedPassword,
-      salt,
     })
 
     return await sendVerificationEmail(email)

@@ -3,6 +3,7 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import bcrypt from 'bcryptjs'
 import { logInSchema } from '@/lib/validations/auth'
 import { DEFAULT_LOGIN_REDIRECT } from '@/routes'
 import {
@@ -12,9 +13,10 @@ import {
 import { getUserByEmail } from '@/server/data/user'
 import { deleteToken, getTokenByEmail } from '@/server/data/token'
 import { sendTwoFactorEmail } from './send-two-factor-email'
-import { comparePasswords } from '@/lib/utils'
 import { createUserSession } from '@/server/data/session'
 import { TResponse } from '@/lib/types'
+import { OAuthProvider } from '@/server/db/schema/users'
+import { getOAuthClient } from '@/server/oauth/base'
 
 export async function login(
   values: z.infer<typeof logInSchema>,
@@ -30,18 +32,14 @@ export async function login(
 
     const user = await getUserByEmail(email)
 
-    if (!user || !user.password || !user.salt) {
+    if (!user || !user.password) {
       return {
         success: false,
         message: 'User not found! Please sign up first.',
       }
     }
 
-    const passwordMatch = await comparePasswords({
-      hashedPassword: user.password,
-      password,
-      salt: user.salt,
-    })
+    const passwordMatch = await bcrypt.compare(password, user.password)
 
     if (!passwordMatch) {
       return { success: false, message: 'Invalid email or password!' }
@@ -96,21 +94,18 @@ export async function login(
   redirect(DEFAULT_LOGIN_REDIRECT)
 }
 
-export async function oAuthLogin(provider: 'google' | 'apple') {
-  console.log('provider', provider)
-  return { error: 'Not implemented yet' }
-  // try {
-  //   await signIn(provider, { redirectTo: DEFAULT_LOGIN_REDIRECT })
-  // } catch (error) {
-  //   if (error instanceof AuthError) {
-  //     switch (error.type) {
-  //       case 'CredentialsSignin':
-  //         return { error: 'Invalid credentials!' }
-  //       default:
-  //         return { error: error.cause?.err?.message || 'Something went wrong' }
-  //     }
-  //   }
-
-  //   throw error
-  // }
+export async function oAuthLogin(
+  provider: OAuthProvider,
+): Promise<TResponse<string>> {
+  try {
+    const oAuthClient = getOAuthClient(provider)
+    const url = await oAuthClient.createAuthUrl(await cookies())
+    return { success: true, message: 'Success!', data: url }
+  } catch (error) {
+    if (error instanceof Error) {
+      return { success: false, message: error.message }
+    } else {
+      return { success: false, message: 'Something went wrong!' }
+    }
+  }
 }

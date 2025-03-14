@@ -1,7 +1,7 @@
-import crypto from 'crypto'
 import { z } from 'zod'
 import { redisClient } from '@/server/db/redis'
 import { userRoles } from '@/server/db/schema/users'
+import { generateRandomHex } from '@/lib/utils'
 
 const SESSION_EXPIRATION_SECONDS = 60 * 60 * 24 * 7
 const COOKIE_SESSION_KEY = 'session-id'
@@ -50,7 +50,7 @@ export async function createUserSession(
   user: UserSession,
   cookies: Pick<Cookies, 'set'>,
 ) {
-  const sessionId = crypto.randomBytes(512).toString('hex').normalize()
+  const sessionId = generateRandomHex(512).normalize()
   await redisClient.set(`session:${sessionId}`, sessionSchema.parse(user), {
     ex: SESSION_EXPIRATION_SECONDS,
   })

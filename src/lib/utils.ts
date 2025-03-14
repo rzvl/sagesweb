@@ -1,4 +1,3 @@
-import crypto from 'crypto'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -19,39 +18,45 @@ export function replaceEmptyWithNull(obj: Record<string, unknown>) {
   )
 }
 
-export function hashPassword(password: string, salt: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    crypto.scrypt(password.normalize(), salt, 64, (error, hash) => {
-      if (error) {
-        reject(error)
-      }
-
-      resolve(hash.toString('hex').normalize())
-    })
-  })
+/**
+ * Web Crypto API
+ * @returns a random six digit number like 510820
+ */
+export async function generateRandomSixDigitNumber() {
+  const randomBuffer = new Uint32Array(1)
+  crypto.getRandomValues(randomBuffer)
+  return (randomBuffer[0] % 900000) + 100000
 }
 
-export async function comparePasswords({
-  password,
-  salt,
-  hashedPassword,
-}: {
-  password: string
-  salt: string
-  hashedPassword: string
-}) {
-  const inputHashedPassword = await hashPassword(password, salt)
-
-  return crypto.timingSafeEqual(
-    Buffer.from(inputHashedPassword, 'hex'),
-    Buffer.from(hashedPassword, 'hex'),
-  )
+/**
+ * Web Crypto API
+ * alternative for: crypto.randomBytes(512).toString("hex").normalize()
+ * @param size number of bytes to generate
+ * @returns a random hex string of the given size (512 bytes => 1024 characters)
+ */
+export function generateRandomHex(size: number) {
+  const array = new Uint8Array(size)
+  crypto.getRandomValues(array)
+  return Array.from(array)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('')
 }
 
-export function generateSalt() {
-  return crypto.randomBytes(16).toString('hex').normalize()
-}
+/**
+ * Web Crypto API
+ * @param input a hex string to be hashed
+ * @returns a base64 url encoded hash of the input
+ * ex: 'DuBkKpLrTVw_qKlYohKInf849KBeHhDLOuMyq1EfGog'
+ */
+export async function hashString(input: string) {
+  const encoder = new TextEncoder()
+  const data = encoder.encode(input)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
 
-export function generateRandomToken() {
-  return crypto.randomBytes(32).toString('hex') // 64-character hex string
+  // Convert to Base64 URL Encoding
+  return btoa(String.fromCharCode(...hashArray))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '')
 }

@@ -2,12 +2,12 @@
 
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
+import bcrypt from 'bcryptjs'
 import { getUserByEmail, updateUser } from '@/server/data/user'
 import { resetPasswordSchema } from '@/lib/validations/auth'
 import { deleteToken, getTokenByToken } from '@/server/data/token'
 import { db } from '@/server/db'
 import { users } from '@/server/db/schema/users'
-import { generateSalt, hashPassword } from '@/lib/utils'
 import { TResponse } from '@/lib/types'
 
 export async function resetPassword(
@@ -65,13 +65,12 @@ export async function resetPassword(
       await updateUser(user.id, { emailVerified: new Date() })
     }
 
-    const salt = generateSalt()
-    const hashedPassword = await hashPassword(password, salt)
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     await deleteToken(existingToken.token, 'passwordReset')
     await db
       .update(users)
-      .set({ password: hashedPassword, salt })
+      .set({ password: hashedPassword })
       .where(eq(users.id, user.id))
 
     return {

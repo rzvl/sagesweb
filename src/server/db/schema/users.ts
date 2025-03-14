@@ -13,7 +13,7 @@ export const userRoles = ['seeker', 'teacher', 'admin'] as const
 export type UserRole = (typeof userRoles)[number]
 export const RoleEnum = pgEnum('roles', userRoles)
 
-export const oauthProviders = ['google', 'apple'] as const
+export const oauthProviders = ['google'] as const
 export type OAuthProvider = (typeof oauthProviders)[number]
 export const OAuthProviderEnum = pgEnum('oauth_providers', ['google', 'apple'])
 
@@ -27,7 +27,6 @@ export const users = pgTable('users', {
   image: text('image'),
   isTwoFactorEnabled: boolean('is_two_factor_enabled').default(false),
   role: RoleEnum('role').notNull().default('seeker'),
-  salt: text('salt'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),

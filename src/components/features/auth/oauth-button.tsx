@@ -5,9 +5,10 @@ import { AppleIcon, GoogleIcon } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { oAuthLogin } from '@/server/actions/auth'
 import { AlertBox, Loader } from '@/components/elements'
+import { redirect } from 'next/navigation'
 
 type OAuthButtonProps = {
-  type: 'apple' | 'google'
+  type: 'google'
 }
 
 export function OAuthButton({ type }: OAuthButtonProps) {
@@ -30,8 +31,10 @@ export function OAuthButton({ type }: OAuthButtonProps) {
 
     const res = await oAuthLogin(type)
 
-    if (res?.error) {
-      setError(res.error)
+    if (res.success && res.data) {
+      redirect(res.data)
+    } else {
+      setError(res.message)
     }
 
     setIsPending(false)
