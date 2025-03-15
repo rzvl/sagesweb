@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 import {
   Card,
@@ -42,8 +43,9 @@ export async function AuthCard({ type }: AuthCardProps) {
       </CardHeader>
       <CardContent className="grid gap-6">
         <div className="flex flex-col gap-4">
-          {/* <OAuthButton type="apple" /> */}
-          <OAuthButton type="google" />
+          <Suspense>
+            <OAuthButton type="google" />
+          </Suspense>
         </div>
 
         <SeparatorWithText text="Or continue with" />
