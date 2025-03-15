@@ -1,7 +1,5 @@
-import { env } from '@/env/client'
-
 export const BASE_URL =
-  env.NEXT_PUBLIC_NODE_ENV === 'production'
+  process.env.NODE_ENV === 'production'
     ? 'https://sagesweb.com'
     : 'http://localhost:3000'
 

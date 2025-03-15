@@ -14,6 +14,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
+import { DEFAULT_LOGIN_REDIRECT } from '@/routes'
 
 export async function GET(
   request: NextRequest,
@@ -46,7 +47,7 @@ export async function GET(
     )
   }
 
-  redirect('/')
+  redirect(DEFAULT_LOGIN_REDIRECT)
 }
 
 function connectUserToAccount(
