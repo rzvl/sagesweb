@@ -26,7 +26,7 @@ export async function GET(
 
   if (typeof code !== 'string' || typeof state !== 'string') {
     redirect(
-      `/sign-in?oauthError=${encodeURIComponent(
+      `/login?oauthError=${encodeURIComponent(
         'Failed to connect. Please try again.',
       )}`,
     )
@@ -40,7 +40,7 @@ export async function GET(
   } catch (error) {
     console.error(error)
     redirect(
-      `/sign-in?oauthError=${encodeURIComponent(
+      `/login?oauthError=${encodeURIComponent(
         'Failed to connect. Please try again.',
       )}`,
     )
@@ -50,7 +50,12 @@ export async function GET(
 }
 
 function connectUserToAccount(
-  { id, email, name }: { id: string; email: string; name: string },
+  {
+    id,
+    email,
+    name,
+    image,
+  }: { id: string; email: string; name: string; image: string | null },
   provider: OAuthProvider,
 ) {
   return db.transaction(async (trx) => {
@@ -63,8 +68,9 @@ function connectUserToAccount(
       const [newUser] = await trx
         .insert(users)
         .values({
-          email: email,
-          name: name,
+          email,
+          name,
+          image,
         })
         .returning({ id: users.id, role: users.role })
       user = newUser

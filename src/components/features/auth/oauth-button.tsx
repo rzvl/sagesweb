@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { redirect, useSearchParams } from 'next/navigation'
 import { AppleIcon, GoogleIcon } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { oAuthLogin } from '@/server/actions/auth'
 import { AlertBox, Loader } from '@/components/elements'
-import { redirect } from 'next/navigation'
 
 type OAuthButtonProps = {
   type: 'google'
@@ -22,6 +22,9 @@ export function OAuthButton({ type }: OAuthButtonProps) {
       text: 'Continue with Google',
     },
   }[type]
+
+  const searchParams = useSearchParams()
+  const oauthError = searchParams.get('oauthError')
 
   const [isPending, setIsPending] = useState(false)
   const [error, setError] = useState('')
@@ -43,6 +46,7 @@ export function OAuthButton({ type }: OAuthButtonProps) {
   return (
     <>
       {error && <AlertBox variant="destructive" message={error} />}
+      {oauthError && <AlertBox variant="destructive" message={oauthError} />}
       <Button
         variant="outline"
         className="w-full"

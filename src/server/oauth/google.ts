@@ -15,16 +15,29 @@ export function createGoogleOAuthClient() {
     },
     userInfo: {
       schema: z.object({
-        id: z.number(),
-        name: z.string().nullable(),
-        login: z.string(),
+        sub: z.string(),
+        name: z.string(),
+        picture: z.string().nullable(),
         email: z.string().email(),
       }),
       parser: (user) => ({
-        id: user.id.toString(),
-        name: user.name ?? user.login,
+        id: user?.sub,
+        name: user?.name,
         email: user.email,
+        image: user?.picture,
       }),
     },
   })
 }
+
+/*
+user_raw_data {
+  sub: '103416362631947470323',
+  name: 'reza vali',
+  given_name: 'reza',
+  family_name: 'vali',
+  picture: 'https://lh3.googleusercontent.com/a/ACg8ocKNOffnsEPjIGTfjpaYisNYRBLOOnCne0ze8RwuG3BM-ZY53Q=s96-c',
+  email: 'rezavalley@gmail.com',
+  email_verified: true
+}
+  */

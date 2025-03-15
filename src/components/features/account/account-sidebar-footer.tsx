@@ -49,10 +49,10 @@ export function AccountSidebarFooter({ user }: AccountSidebarFooterProps) {
                     className="h-9 w-9"
                   />
                   <div className="flex flex-col items-start">
-                    <span className="text-xs font-semibold">
+                    <span className="w-24 truncate text-xs font-semibold">
                       {user?.name || user?.role}
                     </span>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="w-24 truncate text-xs text-muted-foreground">
                       {user?.username ? `@${user?.username}` : user?.email}
                     </span>
                   </div>

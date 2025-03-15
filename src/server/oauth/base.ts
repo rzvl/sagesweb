@@ -22,7 +22,12 @@ export class OAuthClient<T> {
   }
   private readonly userInfo: {
     schema: z.ZodSchema<T>
-    parser: (data: T) => { id: string; email: string; name: string }
+    parser: (data: T) => {
+      id: string
+      email: string
+      name: string
+      image: string | null
+    }
   }
   private readonly tokenSchema = z.object({
     access_token: z.string(),
@@ -48,7 +53,12 @@ export class OAuthClient<T> {
     }
     userInfo: {
       schema: z.ZodSchema<T>
-      parser: (data: T) => { id: string; email: string; name: string }
+      parser: (data: T) => {
+        id: string
+        email: string
+        name: string
+        image: string | null
+      }
     }
   }) {
     this.provider = provider
@@ -78,16 +88,13 @@ export class OAuthClient<T> {
   }
 
   async fetchUser(code: string, state: string, cookies: Pick<Cookies, 'get'>) {
-    const isValidState = await validateState(state, cookies)
+    const isValidState = validateState(state, cookies)
     if (!isValidState) throw new InvalidStateError()
 
     const { accessToken, tokenType } = await this.fetchToken(
       code,
       getCodeVerifier(cookies),
     )
-
-    console.log('accessToken', accessToken)
-    console.log('tokenType', tokenType)
 
     const user = await fetch(this.urls.user, {
       headers: {
@@ -96,6 +103,7 @@ export class OAuthClient<T> {
     })
       .then((res) => res.json())
       .then((rawData) => {
+        console.log('user_raw_data', rawData)
         const { data, success, error } = this.userInfo.schema.safeParse(rawData)
         if (!success) throw new InvalidUserError(error)
 
@@ -105,8 +113,8 @@ export class OAuthClient<T> {
     return this.userInfo.parser(user)
   }
 
-  private fetchToken(code: string, codeVerifier: string) {
-    return fetch(this.urls.token, {
+  private async fetchToken(code: string, codeVerifier: string) {
+    return await fetch(this.urls.token, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
