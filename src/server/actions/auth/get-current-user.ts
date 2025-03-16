@@ -47,8 +47,6 @@ async function _getCurrentUser({
 
   if (withFullUser) {
     const fullUser = await getUserFromDb(user.id)
-    // This should never happen
-    if (fullUser == null) throw new Error('User not found in database')
     return fullUser
   }
 

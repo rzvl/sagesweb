@@ -7,14 +7,12 @@ import { authRoutes, DEFAULT_LOGIN_REDIRECT } from '@/routes'
 
 export async function middleware(request: NextRequest) {
   const response = (await middlewareAuth(request)) ?? NextResponse.next()
-
   await updateUserSessionExpiration({
     set: (key, value, options) => {
       response.cookies.set({ ...options, name: key, value })
     },
     get: (key) => request.cookies.get(key),
   })
-
   return response
 }
 
