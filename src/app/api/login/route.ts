@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
-import { getCurrentUser } from '@/server/actions/auth'
+import { getUser } from '@/server/data/dal'
 
 export async function GET() {
-  const user = await getCurrentUser({ withFullUser: true })
+  const user = await getUser()
 
   if (!user) {
     redirect('/login')

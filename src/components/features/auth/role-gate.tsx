@@ -1,5 +1,5 @@
 import { AlertBox } from '@/components/elements'
-import { getCurrentUser } from '@/server/actions/auth'
+import { verifySession } from '@/server/data/dal'
 import { UserRole } from '@/server/db/schema/users'
 
 type RoleGateProps = {
@@ -8,8 +8,8 @@ type RoleGateProps = {
 }
 
 export async function RoleGate({ children, allowedRoles }: RoleGateProps) {
-  const user = await getCurrentUser()
-  const role = user?.role as UserRole
+  const userSession = await verifySession()
+  const role = userSession?.role as UserRole
 
   if (role && allowedRoles.includes(role)) {
     return <>{children}</>

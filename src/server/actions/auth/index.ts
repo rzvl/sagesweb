@@ -7,7 +7,6 @@ import { sendPasswordResetEmail } from './send-password-reset-email'
 import { resetPassword } from './reset-password'
 import { checkUsernameAvailability, setupUsername } from './setup-username'
 import { updateProfileSettings } from './update-profile-settings'
-import { getCurrentUser } from './get-current-user'
 
 export {
   login,
@@ -21,5 +20,4 @@ export {
   setupUsername,
   checkUsernameAvailability,
   updateProfileSettings,
-  getCurrentUser,
 }

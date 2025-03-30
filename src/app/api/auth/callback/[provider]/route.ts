@@ -1,20 +1,20 @@
 export const runtime = 'nodejs'
 
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { NextRequest } from 'next/server'
+import { z } from 'zod'
+import { eq } from 'drizzle-orm'
+import { DEFAULT_LOGIN_REDIRECT } from '@/routes'
+import { db } from '@/server/db'
 import { getOAuthClient } from '@/server/oauth/base'
 import { createUserSession } from '@/server/data/session'
-import { db } from '@/server/db'
 import {
   OAuthProvider,
   oauthProviders,
   usersOAuthAccounts,
   users,
 } from '@/server/db/schema/users'
-import { eq } from 'drizzle-orm'
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
-import { NextRequest } from 'next/server'
-import { z } from 'zod'
-import { DEFAULT_LOGIN_REDIRECT } from '@/routes'
 
 export async function GET(
   request: NextRequest,
@@ -37,7 +37,13 @@ export async function GET(
   try {
     const oAuthUser = await oAuthClient.fetchUser(code, state, await cookies())
     const user = await connectUserToAccount(oAuthUser, provider)
-    await createUserSession(user, await cookies())
+    await createUserSession(
+      {
+        id: user.id,
+        role: user.role,
+      },
+      await cookies(),
+    )
   } catch (error) {
     console.error(error)
     redirect(

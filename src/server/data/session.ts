@@ -1,17 +1,10 @@
-import { z } from 'zod'
+import 'server-only'
+
 import { redisClient } from '@/server/db/redis'
-import { userRoles } from '@/server/db/schema/users'
 import { generateRandomHex } from '@/lib/utils'
+import { COOKIE_SESSION_KEY, SESSION_EXPIRATION_SECONDS } from '@/lib/constants'
+import { SessionCookie, UserSession } from '@/lib/types'
 
-const SESSION_EXPIRATION_SECONDS = 60 * 60 * 24 * 7
-const COOKIE_SESSION_KEY = 'session-id'
-
-const sessionSchema = z.object({
-  id: z.string(),
-  role: z.enum(userRoles),
-})
-
-type UserSession = z.infer<typeof sessionSchema>
 export type Cookies = {
   set: (
     key: string,
@@ -20,82 +13,81 @@ export type Cookies = {
       secure?: boolean
       httpOnly?: boolean
       sameSite?: 'strict' | 'lax'
-      expires?: number
+      maxAge?: number
     },
   ) => void
   get: (key: string) => { name: string; value: string } | undefined
   delete: (key: string) => void
 }
 
-export function getUserFromSession(cookies: Pick<Cookies, 'get'>) {
-  const sessionId = cookies.get(COOKIE_SESSION_KEY)?.value
-  if (sessionId == null) return null
+export async function createUserSession(
+  user: UserSession,
+  cookies: Pick<Cookies, 'set'>,
+) {
+  const sessionId = generateRandomHex(64).normalize()
+  await redisClient.json.set(`session:${sessionId}`, '$', user)
+  await redisClient.expire(`session:${sessionId}`, SESSION_EXPIRATION_SECONDS)
 
-  return getUserSessionById(sessionId)
+  setCookie(sessionId, cookies)
+}
+
+export function getSessionId(cookies: Pick<Cookies, 'get'>) {
+  const sessionCookie = cookies.get(COOKIE_SESSION_KEY)?.value
+
+  if (!sessionCookie) return null
+
+  const { sessionId } = JSON.parse(sessionCookie) as SessionCookie
+
+  return sessionId
+}
+
+export async function getUserSessionById(sessionId: string) {
+  const userSession = await redisClient.json.get<UserSession>(
+    `session:${sessionId}`,
+  )
+
+  return userSession ?? null
+}
+
+export async function updateSessionExpiry(
+  sessionId: string,
+  cookies: Pick<Cookies, 'set'>,
+) {
+  await redisClient.expire(`session:${sessionId}`, SESSION_EXPIRATION_SECONDS)
+  await setCookie(sessionId, cookies)
 }
 
 export async function updateUserSessionData(
   user: UserSession,
   cookies: Pick<Cookies, 'get'>,
 ) {
-  const sessionId = cookies.get(COOKIE_SESSION_KEY)?.value
+  const sessionId = getSessionId(cookies)
   if (sessionId == null) return null
 
-  await redisClient.set(`session:${sessionId}`, sessionSchema.parse(user), {
-    ex: SESSION_EXPIRATION_SECONDS,
-  })
-}
-
-export async function createUserSession(
-  user: UserSession,
-  cookies: Pick<Cookies, 'set'>,
-) {
-  const sessionId = generateRandomHex(512).normalize()
-  await redisClient.set(`session:${sessionId}`, sessionSchema.parse(user), {
-    ex: SESSION_EXPIRATION_SECONDS,
-  })
-
-  setCookie(sessionId, cookies)
-}
-
-export async function updateUserSessionExpiration(
-  cookies: Pick<Cookies, 'get' | 'set'>,
-) {
-  const sessionId = cookies.get(COOKIE_SESSION_KEY)?.value
-  if (sessionId == null) return null
-
-  const user = await getUserSessionById(sessionId)
-  if (user == null) return
-
-  await redisClient.set(`session:${sessionId}`, user, {
-    ex: SESSION_EXPIRATION_SECONDS,
-  })
-  setCookie(sessionId, cookies)
+  await redisClient.json.set(`session:${sessionId}`, '$', user)
+  await redisClient.expire(`session:${sessionId}`, SESSION_EXPIRATION_SECONDS)
 }
 
 export async function removeUserFromSession(
   cookies: Pick<Cookies, 'get' | 'delete'>,
 ) {
-  const sessionId = cookies.get(COOKIE_SESSION_KEY)?.value
+  const sessionId = getSessionId(cookies)
   if (sessionId == null) return null
 
   await redisClient.del(`session:${sessionId}`)
   cookies.delete(COOKIE_SESSION_KEY)
 }
 
-function setCookie(sessionId: string, cookies: Pick<Cookies, 'set'>) {
-  cookies.set(COOKIE_SESSION_KEY, sessionId, {
-    secure: true,
+async function setCookie(sessionId: string, cookies: Pick<Cookies, 'set'>) {
+  const sessionData = JSON.stringify({
+    sessionId,
+    sessionExpiry: Date.now() + 1000 * SESSION_EXPIRATION_SECONDS,
+  })
+
+  cookies.set(COOKIE_SESSION_KEY, sessionData, {
+    secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     sameSite: 'lax',
-    expires: Date.now() + SESSION_EXPIRATION_SECONDS * 1000,
+    maxAge: SESSION_EXPIRATION_SECONDS,
   })
-}
-
-async function getUserSessionById(sessionId: string) {
-  const rawUser = await redisClient.get(`session:${sessionId}`)
-
-  const { success, data: user } = sessionSchema.safeParse(rawUser)
-
-  return success ? user : null
 }

@@ -14,7 +14,7 @@ import {
 import { Logo } from '@/components/elements'
 import { AccountSidebarButton } from './account-sidebar-button'
 import { AccountSidebarFooter } from './account-sidebar-footer'
-import { getCurrentUser } from '@/server/actions/auth'
+import { getUser } from '@/server/data/dal'
 
 const items = [
   {
@@ -35,7 +35,7 @@ const items = [
 ]
 
 export async function AccountSidebar() {
-  const user = await getCurrentUser({ withFullUser: true })
+  const user = await getUser()
 
   return (
     <Sidebar>

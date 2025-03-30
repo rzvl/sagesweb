@@ -1,19 +1,19 @@
-import { redirect } from 'next/navigation'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import {
   AccountPageContainer,
   AccountSidebar,
 } from '@/components/features/account'
-import { getCurrentUser } from '@/server/actions/auth'
+import { verifySession } from '@/server/data/dal'
+import { redirect } from 'next/navigation'
 
 export default async function Layout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const user = await getCurrentUser()
+  const userSession = await verifySession()
 
-  if (!user) {
+  if (!userSession) {
     redirect('/login')
   }
 

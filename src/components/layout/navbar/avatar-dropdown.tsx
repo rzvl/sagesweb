@@ -16,10 +16,10 @@ import {
 import { FullPageLoader, UserAvatar } from '@/components/elements'
 import { logout } from '@/server/actions/auth'
 import { cn } from '@/lib/utils'
-import { FullUser } from '@/server/actions/auth/get-current-user'
+import { User } from '@/lib/types'
 
 type AvatarDropdownProps = {
-  user: FullUser
+  user: User
 }
 
 export function AvatarDropdown({ user }: AvatarDropdownProps) {

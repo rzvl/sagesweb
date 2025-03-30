@@ -82,7 +82,13 @@ export async function login(
       }
     }
 
-    await createUserSession(user, await cookies())
+    await createUserSession(
+      {
+        id: user.id,
+        role: user.role,
+      },
+      await cookies(),
+    )
   } catch (error) {
     if (error instanceof Error) {
       return { success: false, message: error.message }

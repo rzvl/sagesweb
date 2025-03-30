@@ -17,10 +17,10 @@ import {
 import { type EditProfile, editProfileSchema } from '@/lib/validations/account'
 import { AlertBox, Loader, UserAvatar } from '@/components/elements'
 import { updateProfileSettings } from '@/server/actions/auth'
-import { FullUser } from '@/server/actions/auth/get-current-user'
+import { User } from '@/lib/types'
 
 type ProfileFormProps = {
-  user: FullUser | null
+  user: User | null
 }
 
 export function ProfileForm({ user }: ProfileFormProps) {

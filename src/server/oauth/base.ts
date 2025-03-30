@@ -103,7 +103,6 @@ export class OAuthClient<T> {
     })
       .then((res) => res.json())
       .then((rawData) => {
-        console.log('user_raw_data', rawData)
         const { data, success, error } = this.userInfo.schema.safeParse(rawData)
         if (!success) throw new InvalidUserError(error)
 
@@ -183,7 +182,7 @@ function createState(cookies: Pick<Cookies, 'set'>) {
     secure: true,
     httpOnly: true,
     sameSite: 'lax',
-    expires: Date.now() + COOKIE_EXPIRATION_SECONDS * 1000,
+    maxAge: COOKIE_EXPIRATION_SECONDS,
   })
   return state
 }
@@ -194,7 +193,7 @@ function createCodeVerifier(cookies: Pick<Cookies, 'set'>) {
     secure: true,
     httpOnly: true,
     sameSite: 'lax',
-    expires: Date.now() + COOKIE_EXPIRATION_SECONDS * 1000,
+    maxAge: COOKIE_EXPIRATION_SECONDS,
   })
   return codeVerifier
 }

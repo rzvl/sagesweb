@@ -1,8 +1,8 @@
 import { ProfileForm } from '@/components/features/account'
-import { getCurrentUser } from '@/server/actions/auth'
+import { getUser } from '@/server/data/dal'
 
 export default async function ProfilePage() {
-  const user = await getCurrentUser({ withFullUser: true })
+  const user = await getUser()
 
   return (
     <section className="flex w-full justify-center py-10">
