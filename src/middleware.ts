@@ -2,13 +2,13 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 import { authRoutes } from '@/routes'
 import { SESSION_EXPIRATION_SECONDS } from '@/lib/constants'
-import { getSessionCookie } from '@/server/data/dal'
+import { getSessionCookie } from '@/server/data/session'
 import { updateSessionExpiry } from '@/server/data/session'
 
 export async function middleware(request: NextRequest) {
   const { nextUrl } = request
 
-  const { sessionId, sessionExpiry } = await getSessionCookie()
+  const { sessionId, sessionExpiry } = getSessionCookie(await cookies())
 
   if (!sessionId || !sessionExpiry) {
     return NextResponse.next()

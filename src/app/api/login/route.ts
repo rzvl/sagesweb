@@ -1,8 +1,9 @@
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { getUser } from '@/server/data/dal'
+import { getCurrentUser } from '@/server/data/session'
 
 export async function GET() {
-  const user = await getUser()
+  const user = await getCurrentUser(await cookies())
 
   if (!user) {
     redirect('/login')

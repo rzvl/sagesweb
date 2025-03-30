@@ -1,8 +1,9 @@
+import { cookies } from 'next/headers'
 import { ProfileForm } from '@/components/features/account'
-import { getUser } from '@/server/data/dal'
+import { getCurrentUser } from '@/server/data/session'
 
 export default async function ProfilePage() {
-  const user = await getUser()
+  const user = await getCurrentUser(await cookies())
 
   return (
     <section className="flex w-full justify-center py-10">

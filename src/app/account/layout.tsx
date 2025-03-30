@@ -1,17 +1,18 @@
+import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import {
   AccountPageContainer,
   AccountSidebar,
 } from '@/components/features/account'
-import { verifySession } from '@/server/data/dal'
-import { redirect } from 'next/navigation'
+import { verifySession } from '@/server/data/session'
 
 export default async function Layout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const userSession = await verifySession()
+  const userSession = await verifySession(await cookies())
 
   if (!userSession) {
     redirect('/login')

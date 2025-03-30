@@ -1,5 +1,6 @@
+import { cookies } from 'next/headers'
 import { AlertBox } from '@/components/elements'
-import { verifySession } from '@/server/data/dal'
+import { verifySession } from '@/server/data/session'
 import { UserRole } from '@/server/db/schema/users'
 
 type RoleGateProps = {
@@ -8,7 +9,7 @@ type RoleGateProps = {
 }
 
 export async function RoleGate({ children, allowedRoles }: RoleGateProps) {
-  const userSession = await verifySession()
+  const userSession = await verifySession(await cookies())
   const role = userSession?.role as UserRole
 
   if (role && allowedRoles.includes(role)) {

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { Bookmark, Settings, UserRound, UserRoundCheck } from 'lucide-react'
 import {
   Sidebar,
@@ -14,7 +15,7 @@ import {
 import { Logo } from '@/components/elements'
 import { AccountSidebarButton } from './account-sidebar-button'
 import { AccountSidebarFooter } from './account-sidebar-footer'
-import { getUser } from '@/server/data/dal'
+import { getCurrentUser } from '@/server/data/session'
 
 const items = [
   {
@@ -35,7 +36,7 @@ const items = [
 ]
 
 export async function AccountSidebar() {
-  const user = await getUser()
+  const user = await getCurrentUser(await cookies())
 
   return (
     <Sidebar>
