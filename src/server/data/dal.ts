@@ -5,9 +5,9 @@ import { cookies } from 'next/headers'
 import { eq } from 'drizzle-orm'
 import { db } from '@/server/db'
 import { COOKIE_SESSION_KEY } from '@/lib/constants'
-import { getUserSessionById } from '@/server/data/session'
 import { users } from '@/server/db/schema/users'
-import { SessionCookie, User } from '@/lib/types'
+import { SessionCookie, User, UserSession } from '@/lib/types'
+import { redisClient } from '../db/redis'
 
 export const getSessionCookie = cache(async (): Promise<SessionCookie> => {
   const cookieStore = await cookies()
@@ -23,13 +23,11 @@ export const verifySession = cache(async () => {
 
   if (!sessionId) return null
 
-  const userSession = await getUserSessionById(sessionId)
+  const userSession = await redisClient.json.get<UserSession>(
+    `session:${sessionId}`,
+  )
 
-  if (!userSession) {
-    return null
-  }
-
-  return userSession
+  return userSession ?? null
 })
 
 export const getUser = cache(async () => {
