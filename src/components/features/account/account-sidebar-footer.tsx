@@ -17,10 +17,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import type { FullUser } from '@/server/actions/auth/get-current-user'
+import { User } from '@/lib/types'
 
 type AccountSidebarFooterProps = {
-  user: FullUser | null
+  user: User | null
 }
 
 export function AccountSidebarFooter({ user }: AccountSidebarFooterProps) {
