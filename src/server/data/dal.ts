@@ -38,6 +38,7 @@ async function getUserFromDb(id: string): Promise<User | null> {
       name: true,
       username: true,
       image: true,
+      isTwoFactorEnabled: true,
     },
     where: eq(users.id, id),
   })

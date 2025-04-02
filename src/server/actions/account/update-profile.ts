@@ -1,13 +1,14 @@
 'use server'
 
+import { z } from 'zod'
 import { TResponse } from '@/lib/types'
-import { EditProfile, editProfileSchema } from '@/lib/validations/account'
+import { editProfileSchema } from '@/lib/validations/account'
 import { updateUser } from '@/server/data/user'
 import { revalidatePath } from 'next/cache'
 
 export async function updateProfileSettings(
   id: string,
-  values: EditProfile,
+  values: z.infer<typeof editProfileSchema>,
 ): Promise<TResponse> {
   try {
     const validatedFields = editProfileSchema.safeParse(values)

@@ -9,19 +9,21 @@ import { TResponse } from '@/lib/types'
 interface ActionSwitchProps {
   label: string
   description?: string
-  onToggleAction: (isChecked: boolean) => Promise<TResponse>
+  checked: boolean
+  onToggleAction: () => Promise<TResponse>
 }
 
 export function ActionSwitch({
   label,
   description,
+  checked,
   onToggleAction,
 }: ActionSwitchProps) {
-  const [isChecked, setIsChecked] = useState(false)
+  const [isChecked, setIsChecked] = useState(checked)
 
-  const handleToggle = async (checked: boolean) => {
-    setIsChecked(checked)
-    const response = await onToggleAction(checked)
+  const handleToggle = async () => {
+    setIsChecked(!checked)
+    const response = await onToggleAction()
 
     if (response.success) {
       toast.success(response.message)

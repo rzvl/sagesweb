@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -14,9 +15,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { type EditProfile, editProfileSchema } from '@/lib/validations/account'
+import { editProfileSchema } from '@/lib/validations/account'
 import { AlertBox, Loader, UserAvatar } from '@/components/elements'
-import { updateProfileSettings } from '@/server/actions/auth'
+import { updateProfileSettings } from '@/server/actions/account/update-profile'
 import { User } from '@/lib/types'
 
 type ProfileFormProps = {
@@ -27,7 +28,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  const form = useForm<EditProfile>({
+  const form = useForm<z.infer<typeof editProfileSchema>>({
     resolver: zodResolver(editProfileSchema),
     defaultValues: {
       image: user?.image || '',
@@ -35,7 +36,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
     },
   })
 
-  const onSubmit = async (values: EditProfile) => {
+  const onSubmit = async (values: z.infer<typeof editProfileSchema>) => {
     setError('')
     setSuccess('')
 

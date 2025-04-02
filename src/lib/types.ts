@@ -23,4 +23,5 @@ export type User = {
   username: string | null
   image: string | null
   role: UserRole
+  isTwoFactorEnabled: boolean | null
 }

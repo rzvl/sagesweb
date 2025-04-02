@@ -32,8 +32,7 @@ export const signupSchema = z.object({
     .regex(/[0-9]/, { message: 'Password must contain at least one number.' })
     .regex(/[^a-zA-Z0-9]/, {
       message: 'Password must contain at least one special character.',
-    })
-    .trim(),
+    }),
 })
 
 export const forgotPasswordSchema = z.object({

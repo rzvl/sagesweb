@@ -2,16 +2,20 @@ import Link from 'next/link'
 import { ActionSwitch } from '@/components/elements'
 import { ChangePasswordForm } from '@/components/features/account'
 import { getCurrentUser } from '@/server/data/dal'
+import { Toggle2FA } from '@/server/actions/account/update-settings'
 
 export default async function SettingsPage() {
   const user = await getCurrentUser()
 
-  const handleToggle = async (isChecked: boolean) => {
+  const handleToggle = async () => {
     'use server'
-    return {
-      success: true,
-      message: `Switch is now ${isChecked ? 'ON' : 'OFF'}`,
+    if (!user?.id || user?.isTwoFactorEnabled === null) {
+      return {
+        success: false,
+        message: 'User not found!',
+      }
     }
+    return await Toggle2FA(user.id, !user.isTwoFactorEnabled)
   }
 
   return (
@@ -22,19 +26,25 @@ export default async function SettingsPage() {
           {user?.username ? (
             `@${user?.username}`
           ) : (
-            <Link href="/username-setup">Setup Now</Link>
+            <Link
+              href="/username-setup"
+              className="text-cyan-800 underline underline-offset-4"
+            >
+              Setup Now
+            </Link>
           )}
         </li>
         <li>
           <ActionSwitch
             label="Two-Factor Authentication (2FA)"
             description="Enable for added account security"
+            checked={user?.isTwoFactorEnabled || false}
             onToggleAction={handleToggle}
           />
         </li>
-        <li className="space-y-6 rounded-lg border p-3 text-sm font-semibold shadow-sm">
-          <h3>Change Password:</h3>
-          <ChangePasswordForm />
+        <li className="space-y-6 rounded-lg border p-3 text-sm shadow-sm">
+          <h3 className="font-semibold">Change Password:</h3>
+          <ChangePasswordForm userId={user?.id || ''} />
         </li>
       </ul>
     </section>

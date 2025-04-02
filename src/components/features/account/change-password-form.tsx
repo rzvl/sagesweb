@@ -2,8 +2,8 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   Form,
   FormControl,
@@ -12,24 +12,35 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import {
-  type ChangePassword,
-  changePasswordSchema,
-} from '@/lib/validations/account'
 import { Loader } from '@/components/elements'
+import { changePasswordSchema } from '@/lib/validations/account'
+import { PasswordInput } from '@/components/features/auth/password-input'
+import { changePassword } from '@/server/actions/auth/change-password'
+import { toast } from 'sonner'
 
-export function ChangePasswordForm() {
-  const form = useForm<ChangePassword>({
+type ChangePasswordFormProps = {
+  userId: string
+}
+
+export function ChangePasswordForm({ userId }: ChangePasswordFormProps) {
+  const form = useForm<z.infer<typeof changePasswordSchema>>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: {
+      userId,
       currentPassword: '',
       newPassword: '',
     },
   })
 
-  const onSubmit = async (values: ChangePassword) => {
-    // TODO
-    console.log(values)
+  const onSubmit = async (values: z.infer<typeof changePasswordSchema>) => {
+    const res = await changePassword(values)
+    form.reset()
+
+    if (res.success) {
+      toast.success(res.message)
+    } else {
+      toast.error(res.message)
+    }
   }
 
   return (
@@ -45,7 +56,7 @@ export function ChangePasswordForm() {
             <FormItem>
               <FormLabel>Current Password</FormLabel>
               <FormControl>
-                <Input
+                <PasswordInput
                   disabled={form.formState.isSubmitting}
                   placeholder="********"
                   {...field}
@@ -62,7 +73,7 @@ export function ChangePasswordForm() {
             <FormItem>
               <FormLabel>New Password</FormLabel>
               <FormControl>
-                <Input
+                <PasswordInput
                   disabled={form.formState.isSubmitting}
                   placeholder="********"
                   {...field}

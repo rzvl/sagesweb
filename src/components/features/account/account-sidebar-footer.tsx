@@ -1,7 +1,7 @@
 'use client'
 
 import { useTransition } from 'react'
-import { LogOut, MoreHorizontal } from 'lucide-react'
+import { LogOut, MoreHorizontal, SunMoon } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   DropdownMenu,
@@ -18,6 +18,7 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { User } from '@/lib/types'
+import { useTheme } from 'next-themes'
 
 type AccountSidebarFooterProps = {
   user: User | null
@@ -25,6 +26,12 @@ type AccountSidebarFooterProps = {
 
 export function AccountSidebarFooter({ user }: AccountSidebarFooterProps) {
   const [isPending, startTransition] = useTransition()
+
+  const { setTheme, theme } = useTheme()
+
+  const handleChangeTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark')
+  }
 
   const handleLogout = async () => {
     startTransition(async () => {
@@ -61,6 +68,14 @@ export function AccountSidebarFooter({ user }: AccountSidebarFooterProps) {
               </SidebarMenuButton>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="start">
+              <DropdownMenuItem
+                onClick={handleChangeTheme}
+                disabled={isPending}
+                className="group cursor-pointer transition-all duration-300 ease-in-out focus:bg-destructive/30"
+              >
+                <SunMoon className="mr-2 h-4 w-4 transition-all duration-300 ease-in-out group-hover:scale-75" />
+                Change Theme
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={handleLogout}
                 disabled={isPending}
