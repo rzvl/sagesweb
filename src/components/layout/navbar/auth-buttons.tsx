@@ -1,11 +1,10 @@
-import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { AvatarDropdown } from './avatar-dropdown'
-import { getCurrentUser } from '@/server/data/session'
+import { getCurrentUser } from '@/server/data/dal'
 
 export async function AuthButtons() {
-  const user = await getCurrentUser(await cookies())
+  const user = await getCurrentUser()
 
   if (user) {
     return <AvatarDropdown user={user} />

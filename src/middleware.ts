@@ -7,15 +7,15 @@ import { updateSessionExpiry } from '@/server/data/session'
 
 export async function middleware(request: NextRequest) {
   const { nextUrl } = request
+  const cookieStore = await cookies()
 
-  const { sessionId, sessionExpiry } = getSessionCookie(await cookies())
+  const { sessionId, sessionExpiry } = getSessionCookie(cookieStore)
 
   if (!sessionId || !sessionExpiry) {
     return NextResponse.next()
   }
 
   if (Date.now() > sessionExpiry - 1000 * (SESSION_EXPIRATION_SECONDS / 2)) {
-    const cookieStore = await cookies()
     await updateSessionExpiry(sessionId, cookieStore)
   }
 

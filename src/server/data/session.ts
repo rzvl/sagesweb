@@ -1,13 +1,9 @@
 import 'server-only'
 
-import { cache } from 'react'
-import { eq } from 'drizzle-orm'
 import { generateRandomHex } from '@/lib/utils'
 import { COOKIE_SESSION_KEY, SESSION_EXPIRATION_SECONDS } from '@/lib/constants'
-import { SessionCookie, User, UserSession } from '@/lib/types'
-import { db } from '@/server/db'
+import { SessionCookie, UserSession } from '@/lib/types'
 import { redisClient } from '@/server/db/redis'
-import { users } from '@/server/db/schema/users'
 
 export type Cookies = {
   set: (
@@ -92,42 +88,4 @@ async function setCookie(sessionId: string, cookies: Pick<Cookies, 'set'>) {
     sameSite: 'lax',
     maxAge: SESSION_EXPIRATION_SECONDS,
   })
-}
-
-export const verifySession = cache(async (cookies: Pick<Cookies, 'get'>) => {
-  const { sessionId } = getSessionCookie(cookies)
-
-  if (!sessionId) return null
-
-  const userSession = await redisClient.json.get<UserSession>(
-    `session:${sessionId}`,
-  )
-
-  return userSession ?? null
-})
-
-export const getCurrentUser = cache(async (cookies: Pick<Cookies, 'get'>) => {
-  const userSession = await verifySession(cookies)
-
-  if (!userSession) return null
-
-  return await getUserFromDb(userSession.id)
-})
-
-async function getUserFromDb(id: string): Promise<User | null> {
-  const user = await db.query.users.findFirst({
-    columns: {
-      id: true,
-      email: true,
-      role: true,
-      name: true,
-      username: true,
-      image: true,
-    },
-    where: eq(users.id, id),
-  })
-
-  if (!user) return null
-
-  return user
 }

@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import {
@@ -7,10 +6,10 @@ import {
 } from '@/components/features/auth'
 import { Button } from '@/components/ui/button'
 import { AlertBox } from '@/components/elements'
-import { getCurrentUser } from '@/server/data/session'
+import { getCurrentUser } from '@/server/data/dal'
 
 export default async function UsernameSetupPage() {
-  const user = await getCurrentUser(await cookies())
+  const user = await getCurrentUser()
 
   if (user?.username) {
     return <UserAlreadySetCard />
