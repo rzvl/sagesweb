@@ -25,7 +25,15 @@ export const signupSchema = z.object({
     .trim()
     .min(1, { message: 'Password is required' })
     .min(8, { message: 'Password must be at least 8 characters' })
-    .max(64, { message: 'Password must be less than 64 characters' }),
+    .max(64, { message: 'Password must be less than 64 characters' })
+    .regex(/[a-zA-Z]/, {
+      message: 'Password must contain at least one letter.',
+    })
+    .regex(/[0-9]/, { message: 'Password must contain at least one number.' })
+    .regex(/[^a-zA-Z0-9]/, {
+      message: 'Password must contain at least one special character.',
+    })
+    .trim(),
 })
 
 export const forgotPasswordSchema = z.object({

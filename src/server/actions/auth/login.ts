@@ -35,7 +35,7 @@ export async function login(
     if (!user || !user.password) {
       return {
         success: false,
-        message: 'User not found! Please sign up first.',
+        message: 'Invalid email or password!',
       }
     }
 
