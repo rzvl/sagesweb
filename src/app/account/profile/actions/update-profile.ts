@@ -1,10 +1,10 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 import { TResponse } from '@/lib/types'
-import { editProfileSchema } from '@/lib/validations/account'
 import { updateUser } from '@/server/data/user'
-import { revalidatePath } from 'next/cache'
+import { editProfileSchema } from '../components/schema'
 
 export async function updateProfileSettings(
   id: string,
@@ -16,7 +16,9 @@ export async function updateProfileSettings(
       throw new Error('Invalid profile settings')
     }
 
-    await updateUser(id, values)
+    const { image, name } = validatedFields.data
+
+    await updateUser(id, { image, name })
 
     revalidatePath('/account/profile')
 

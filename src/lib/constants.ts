@@ -1,7 +1,10 @@
+// URLs
 export const BASE_URL =
   process.env.NODE_ENV === 'production'
     ? 'https://sagesweb.com'
     : 'http://localhost:3000'
+
+export const UPLOADTHING_IMAGE_BASE_URL = 'https://ib5xstbmt6.ufs.sh/f/'
 
 // Authentication
 export const EAMIL_IS_VERIFIED_MESSAGE =

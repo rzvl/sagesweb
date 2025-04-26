@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { redirect, useSearchParams } from 'next/navigation'
-import { AppleIcon, GoogleIcon } from '@/components/icons'
+import { AppleIcon, GoogleIconColored } from '@/components/icons'
 import { Button } from '@/components/ui/button'
 import { oAuthLogin } from '@/server/actions/auth'
 import { AlertBox, Loader } from '@/components/elements'
@@ -18,7 +18,7 @@ export function OAuthButton({ type }: OAuthButtonProps) {
       text: 'Continue with Apple',
     },
     google: {
-      icon: GoogleIcon,
+      icon: GoogleIconColored,
       text: 'Continue with Google',
     },
   }[type]
