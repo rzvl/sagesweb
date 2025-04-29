@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ShieldAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { AuthPageContainer } from '@/components/features/auth'
+import { AuthPageContainer } from '../components/auth-page-container'
 
 export default function AuthErrorPage() {
   return (

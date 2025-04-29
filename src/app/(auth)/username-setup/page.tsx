@@ -1,12 +1,10 @@
 import Link from 'next/link'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import {
-  AuthPageContainer,
-  UsernameSetupForm,
-} from '@/components/features/auth'
 import { Button } from '@/components/ui/button'
-import { AlertBox } from '@/components/elements'
+import { AlertBox } from '@/components/common/alert-box'
 import { getCurrentUser } from '@/server/data/dal'
+import { AuthPageContainer } from '../components/auth-page-container'
+import { UsernameSetupForm } from './username-setup-form'
 
 export default async function UsernameSetupPage() {
   const user = await getCurrentUser()

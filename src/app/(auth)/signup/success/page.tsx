@@ -1,7 +1,5 @@
-import {
-  AuthPageContainer,
-  VerifyEmailMessage,
-} from '@/components/features/auth'
+import { AuthPageContainer } from '../../components/auth-page-container'
+import { VerifyEmailMessage } from '../../components/verify-email-message'
 
 export default function SuccessPage() {
   return (

@@ -1,10 +1,8 @@
 import { redirect } from 'next/navigation'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
-import {
-  AccountPageContainer,
-  AccountSidebar,
-} from '@/components/features/account'
 import { verifySession } from '@/server/data/dal'
+import { AccountPageContainer } from './components/account-page-container'
+import { AccountSidebar } from './components/account-sidebar'
 
 export default async function Layout({
   children,

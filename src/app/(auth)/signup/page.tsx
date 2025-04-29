@@ -1,4 +1,5 @@
-import { AuthCard, AuthPageContainer } from '@/components/features/auth'
+import { AuthPageContainer } from '../components/auth-page-container'
+import { AuthCard } from '../components/auth-card'
 
 export default function SignupPage() {
   return (

@@ -1,9 +1,7 @@
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import {
-  AuthPageContainer,
-  ForgotPasswordForm,
-} from '@/components/features/auth'
 import Link from 'next/link'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { AuthPageContainer } from '../../components/auth-page-container'
+import { ForgotPasswordForm } from './forgot-password-form'
 
 export default function ForgotPasswordPage() {
   return (

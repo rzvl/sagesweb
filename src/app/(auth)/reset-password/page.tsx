@@ -1,9 +1,7 @@
 import { LockKeyhole } from 'lucide-react'
 import { Card, CardHeader } from '@/components/ui/card'
-import {
-  AuthPageContainer,
-  ResetPasswordForm,
-} from '@/components/features/auth'
+import { AuthPageContainer } from '../components/auth-page-container'
+import { ResetPasswordForm } from './reset-password-form'
 
 export default function ResetPasswordPage() {
   return (

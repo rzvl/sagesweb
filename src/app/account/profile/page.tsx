@@ -1,5 +1,5 @@
 import { getCurrentUser } from '@/server/data/dal'
-import { ProfileForm } from './components/profile-form'
+import { ProfileForm } from './profile-form'
 
 export default async function ProfilePage() {
   const user = await getCurrentUser()

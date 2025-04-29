@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { ActionSwitch } from '@/components/elements'
-import { ChangePasswordForm } from '@/components/features/account'
+import { ActionSwitch } from '@/components/common/action-switch'
 import { getCurrentUser } from '@/server/data/dal'
-import { Toggle2FA } from '@/server/actions/account/update-settings'
+import { Toggle2FA } from './toggle-2fa'
+import { ChangePasswordForm } from './change-password-form'
 
 export default async function SettingsPage() {
   const user = await getCurrentUser()

@@ -6,12 +6,11 @@ import { useSearchParams } from 'next/navigation'
 import { MailCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { verifyEmail } from '@/server/actions/auth'
-import { AlertBox, Loader } from '@/components/elements'
-import {
-  AuthPageContainer,
-  ResendEmailVerificationButton,
-} from '@/components/features/auth'
+import { AlertBox } from '@/components/common/alert-box'
+import { Loader } from '@/components/common/loader'
+import { AuthPageContainer } from '../components/auth-page-container'
+import { ResendEmailVerificationButton } from '../components/resend-email-vrf-btn'
+import { verifyEmail } from './verify-email'
 
 export default function VerifyEmailPage() {
   const [error, setError] = useState('')
