@@ -1,5 +1,5 @@
-import { RoleGate } from '@/components/common/role-gate'
+import { redirect } from 'next/navigation'
 
-export default function AdminPage() {
-  return <RoleGate allowedRoles={['admin']}>Admin Page</RoleGate>
+export default function AccountPage() {
+  redirect('/account/admin/analytics')
 }
